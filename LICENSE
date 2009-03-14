@@ -2,9 +2,9 @@ All of talkie, except the name 'Talkie', is released under the following Creativ
   http://creativecommons.org/licenses/by-nc-sa/2.5/au/
 It allows for non commercial use, provided you share alike. :)
 
-The ruby code, excluding that relating to the interface (explicitly excluding all 'Markaby' code
-within 'ui.rb', and 'login.html', and all things contained within the 'style' folder) is also
-available to you under the following Creative Commons Attribution license:
+The ruby code, excluding that relating to the interface (explicitly excluding everything in views.rb, style folder, and the default
+folder) is also available to you under the following Creative Commons
+Attribution license:
   http://creativecommons.org/licenses/by/2.5/au/
 
 The name 'Talkie' is reserved, though I don't mind if you use it in some tiny chat among a few

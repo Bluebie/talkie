@@ -1,8 +1,23 @@
 To setup talkie, you'll need to upload these files to some sort of server with the ruby
-binaries available, and enable 'cgi' support for the .rb files. You'll also need to alter
+binaries available, and run 'rackup' in the talkie folder. You can use other server's
+with rack support like thin, but just be sure you make sure whatever you use allows
+plenty of concurrent connections, and has some threading support! You'll also need to alter
 the file permissions for both the 'users' and 'rooms' folders to ensure the ruby scripts
 can read, write, create, and delete things within. Finally, you'll want to alter the
 'xrds.xml' file to correctly represent the location you are hosting talkie at on the web.
 
 xrds can be sorted out later on however, as it simply makes the UI of openid providers,
 such as Yahoo OpenID, less scary to your users.
+
+Talkie was originally a cgi application, and hasn't changed much from that. If you ignore
+the botrunner support, you could run it as a cgi ruby script with only minimal changes.
+Depending on how fast your server is, this might be a very good option. :)
+
+Oh, and one more thing! Check out the helpers.rb file. My openid's are hacked in there
+in the user_owns_room? method, change them out for your own or i'll be able to login
+and have ownership rights over rooms everywhere in your system! Mwa ha ha ha ha ha... :)
+
+Hope you love talkie!
+
+—
+Yours Truly, Prettiest Pony on all of GitHub
