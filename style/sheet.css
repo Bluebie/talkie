@@ -1,0 +1,204 @@
+/* Some simple rules that set up nice defaults */
+* { margin: 0; padding: 0; }
+html { background-color: #8FB359; font-family: Helvetica, Ariel, sans-serif; font-size: 13px; min-height: 100%; }
+.title, .button { user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+/* #spacer { height: 712px; } */
+
+/* Container Windows */
+body { min-height: 525px; }
+.regularContainer {
+  position: absolute;
+  background: url(regular-container.png) 0 0;
+  width: 640px;
+  left: 50%;
+  top: 50%;
+  margin-top: -262px;/*80px*/
+  margin-left: -333px;
+  padding: 13px; padding-bottom: 0;
+  z-index: 100;
+}
+
+.regularContainer .footer {
+  background: url(regular-container.png) left bottom;
+  background-repeat: no-repeat;
+  position: absolute;
+  height: 13px;
+  width: 666px;
+  margin-left: -13px;
+}
+
+.regularBody { height: 498px; }
+
+.scroll {
+  height: 470px;
+  width: 640px;
+  overflow-y: scroll;
+  position: absolute;
+}
+
+
+/* Bars */
+
+.bar { background-color: #192B33; height: 26px; border: 2px none #CCCC52; border-top-style: solid; border-bottom-style: solid; }
+.bar.top { border-top-style: none; }
+.lefted { float: left; }
+.righted { float: right; }
+
+.bar .title {
+  position: absolute;
+  left: 200px; right: 200px;
+  margin-top: 1px;
+  text-align: center;
+}
+
+.bar .text {
+  display: inline-block;
+  font-family: 'Complete in Him';
+  font-size: 20px;
+  color: #DFDFA3;
+  margin-top: -2px;
+}
+
+/* Buttons */
+
+.button {
+  display: inline-block;
+  background: url("button.png") right top;
+  height: 24px;
+  margin-top: 1px;
+  margin-left: 18px;
+  margin-right: 1px;
+  padding-right: 17px;
+  font-family: Palatino, serif;
+  color: #192B33;
+  font-size: 12px;
+  cursor: pointer;
+  line-height: 26px; /* fixes opera */
+  text-decoration: none;
+}
+
+.button em {
+  display: inline-block;
+  background: url("button.png") left top;
+  height: 24px;
+  margin-left: -17px;
+  padding-left: 17px;
+  font-style: normal;
+  vertical-align: top;
+}
+
+.button:hover { background-position: 100% -24px; }
+.button:hover em { background-position: 0% -24px; }
+
+.button:active { background-position: 100% 100%; }
+.button:active em { background-position: 0% 100%; }
+
+.button.left { background-image: url("back-button.png"); margin-left: 13px; }
+.button.left em { background-image: url("back-button.png"); margin-left: -25px; padding-left: 25px; }
+
+.button.right { background-image: url("forward-button.png"); margin-right: -13px; padding-right: 23px; }
+.button.right em { background-image: url("forward-button.png"); }
+
+
+
+/* Typography */
+
+.intro { margin: 10px; line-height: 1.4; }
+.rule { border-top: 2px solid #CCCC52; }
+.rule hr { display: none; }
+
+
+/* Login Page */
+
+#loginForm { margin-top: 7em; padding-left: 4px; }
+#loginForm select { margin: 3px 5px; }
+#loginForm .button { margin-left: 22px; }
+#loginForm input { margin-left: 5px; }
+#openid { width: 270px; }
+#idp { width: 110px; }
+.error { border-top-style: solid; border-bottom-style: solid; border-width: 2px; border-color: #e05640; background-color: #e08e63; text-align: center; margin-top: 1em; padding: 1ex; }
+
+
+/* Home Page */
+
+div.profile { background-color: #CCCC52; width: 600px; margin: 10px auto; }
+.ender { display: block; border-style: none; }
+.clearer { clear: left; }
+.bigAvatarEdit { display: block; width: 80px; height: 80px; background-color: white; float: left; }
+div.profile .bigAvatarEdit { margin: 0 5px; }
+.bigAvatarEdit img { display: block; position: absolute; cursor: pointer; }
+.bigAvatarEdit img.overlay { visibility: hidden; }
+.bigAvatarEdit:hover img.overlay { visibility: visible; }
+/* avatar upload indicator pie */
+.pie { display: block; width: 30px; height: 30px; }
+.bigAvatarEdit .pie { position: absolute; overflow: hidden; margin: 25px; }
+.bigAvatarEdit .pie img { position: static; }
+div.profile #name { text-align: center; margin: 0 80px 0 120px; font-size: 15px; margin-bottom: 5px; }
+div.profile #desc { display: block; width: 491px; height: 50px; line-height: 1.4; margin: 0 10px 0 95px; resize: none; font-family: inherit; font-size: 9pt; }
+
+.bigAvatarEdit .menu { position: absolute; width: 98px; height: 38px; background-image: url("avatar-popup.png"); padding: 7px; margin-top: 80px; z-index: 1000;}
+.bigAvatarEdit .menu span { display: block; margin-bottom: 4px; }
+.bigAvatarEdit .menu span:hover { text-decoration: underline; cursor: pointer; }
+
+/* rooms */
+a.roomButton { display: block; background-color: #CCCC52; width: 295px; margin: 10px 0 0 10px; float: left; color: #192B33; text-decoration: none; height: 90px; }
+.bigAvatar { display: block; width: 80px; height: 80px; margin: 0 5px; background-color: white; float: left; border-style: none; }
+div.rooms { padding-bottom: 10px; overflow: hidden; }
+a.roomButton .title { font-family: 'Complete in Him'; font-size: 20px; text-align: center; padding-bottom: 9px; }
+a.roomButton p { line-height: 1.35; margin-top: -5px; height: 55px; overflow: hidden; }
+a.roomButton .ender, .profile .ender { height: 5px; }
+a.little_av { margin: 5px; color: #192B33; display: block; white-space: nowrap; float: left; width: 110px; overflow: hidden; margin-left: 10px; margin-top: 10px; text-decoration: none; }
+a.little_av:hover span { text-decoration: underline; }
+div.rooms a.dead { opacity: 0.5; }
+
+
+/* The Chat Pages */
+.shortScroll { height: 442px; }
+.inputBox { position: absolute; bottom: 0; border-top: 2px solid #CCCC52; height: 26px; width: 640px; background: white url("chat-input.png"); }
+.inputBox input { width: 556px; border: 0 none; outline: 0 none; padding: 0; margin: 0; background-color: transparent; height: 26px; line-height: 26px; padding-left: 5px; -webkit-appearance: none; }
+.gecko .inputBox input { padding-top: 5px; }
+.inputBox #smilies { position: absolute; margin-top: 5px; width: 16px; height: 16px; background-image: url('../default/room/smilies/smile.png'); display: inline; cursor: pointer; }
+.inputBox .button { position: absolute; right: 0; bottom: 1px; }
+.wrap { position: relative; }
+
+/* the sidebar */
+.sidebar { position: absolute; bottom: 10px; right: 10px; width: 151px; }
+.boxy { background-color: #CCCC52; width: 151px; margin-top: 10px; }
+.boxy .body { padding: 0 5px; }
+.boxy .body a.button b { font-weight: normal; width: 105px; text-align: center; display: inline-block; }
+.boxy .body .user { margin: 5px 0; color: #192B33; display: block; white-space: nowrap; cursor: default; }
+#userlist .top { margin-bottom: -5px; }
+#userlist .bottom { margin-top: -5px; }
+
+/* smilies selector popup */
+#smiliesSelector { position: absolute; bottom: 25px; width: 114px; margin-left: -49px; z-index: 10000; cursor: default; }
+#smiliesSelector .body { background-image: url(smilies-selector.png); background-position: top center; padding: 7px; padding-bottom: 0; }
+#smiliesSelector .footer { background-image: url(smilies-selector.png); background-position: bottom center; width: 114px; margin-left: 0; height: 6px; }
+#smiliesSelector .body .smilie { padding: 2px; cursor: pointer; }
+#smiliesSelector .body .smilie:hover { background: url(smily-selected.png) no-repeat center center; }
+
+/* favicon widget styling */
+.favatar { display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -3px; background-color: white; }
+
+#messages { min-height: 442px; overflow: hidden; }
+.message { margin: 0.8em 0; color: #192B33; line-height: 1.4; -webkit-text-size-adjust: none; }
+.message .user { position: absolute; width: 450px; left: -300px; height: 1.5em; overflow: hidden; text-align: right; }
+.message .body { margin-left: 55px; text-indent: 100px; width: 390px; display: block; word-wrap: break-word; }
+.message .body .smiley { vertical-align: middle; }
+#messages .highlight { background-color: #FFD933; padding: 1ex 0 1ex 0; }
+
+#messages .normal .body { margin-left: 70px; }
+#messages .action { font-style: italic; }
+
+/* the create room page */
+.bigBlock { background-color: #CCCC52; width: 600px; margin: 20px; }
+.bigBlock .body { margin: 5px 10px 5px 10px; }
+/* #settingsForm .body { height: 410px; } */
+#settingsForm dt { position: absolute; width: 170px; text-align: right; color: #192B33; }
+#settingsForm dd { margin-left: 186px; margin-bottom: 0.5em; overflow: hidden; }
+#settingsForm #title { width: 198px; text-align: center; }
+#settingsForm #desc { width: 200px; height: 4em; resize: none; }
+#settingsForm .gap { padding: 1em 0 1em 0; }
+#settingsForm .colour { width: 8ex; }
+#settingsForm .url { width: 250px; }
+

@@ -1,0 +1,8 @@
+To setup talkie, you'll need to upload these files to some sort of server with the ruby
+binaries available, and enable 'cgi' support for the .rb files. You'll also need to alter
+the file permissions for both the 'users' and 'rooms' folders to ensure the ruby scripts
+can read, write, create, and delete things within. Finally, you'll want to alter the
+'xrds.xml' file to correctly represent the location you are hosting talkie at on the web.
+
+xrds can be sorted out later on however, as it simply makes the UI of openid providers,
+such as Yahoo OpenID, less scary to your users.

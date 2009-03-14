@@ -1,0 +1,27 @@
+# set up charsets and encoding for precompressed material
+AddCharset utf-8 .js .htm .html .txt .json .css .rb
+AddEncoding x-gzip .gzip
+AddType text/x-component .htc
+AddType text/javascript .json
+
+# enable ruby cgi scripts in the main html folder of the server
+AddHandler cgi-script .rb
+Options +ExecCGI -Indexes
+
+RewriteEngine on
+
+
+# no-www stuff
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^(.*)$ http://%1/$1 [R=302,L] 
+
+# index thing
+RewriteCond %{HTTP_COOKIE} authed=yep
+RewriteRule ^$ /home [R=307,L]
+# or normally...
+RewriteRule ^$ /login.html [L]
+
+#   request isn't for something static, so we go and send this to the script
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} !-f
+RewriteCond %{REQUEST_URI} !/ui\.rb
+RewriteRule ^(.+)$ /ui.rb/$1 [NS,L]
