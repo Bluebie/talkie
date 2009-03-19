@@ -38,7 +38,7 @@ apps << Rack::Builder.new do
     use Rack::ContentLength
     use Rack::Deflater
     run(lambda { |env|
-      files = ['mootools-1.2.1-core-yc.js', 'mootools-1.2.1-more-rc01-multi-more.js', 'core.js', 'cufon-yui.js', 'Complete_in_Him_400.font.js']
+      files = ['mootools-1.2.1-core-yc.js', 'mootools-1.2.1-more-rc01-multi-more.js', 'core.js', 'network.js', 'cufon-yui.js', 'Complete_in_Him_400.font.js']
       time = files.map { |f| File.mtime("script/#{f}") }.max
       if !env['HTTP_IF_MODIFIED_SINCE'] || time > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
         data = files.map { |f| File.read("script/#{f}") }.join("\n")

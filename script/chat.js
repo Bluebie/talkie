@@ -3,15 +3,15 @@ window.focused = true;
 var Messages = {
   // generate the html to display a message
   generate: function(classy, message) {
-    if (message.data.body.trim() == '') return;
+    if (message.body.toString().trim() == '') return;
     
     var messageElement = new Element('div', {'class': 'message'});
     messageElement.store('message-object', message);
-    if (message.id) messageElement.set('id', 'message-' + message.id)
+    if (message.id) messageElement.set('id', 'message-' + message.id);
     
-    if (message.data.from) messageElement.adopt(Users.generateHTML(message.data.from));
+    if (message.from) messageElement.adopt(Users.generateHTML(message.from));
     
-    var messageBody = new Element('span', {'class': 'body', text: message.data.body});
+    var messageBody = new Element('span', {'class': 'body', text: message.body.toString()});
     messageElement.adopt(messageBody);
     // do smilies
     AutoLink.everything(messageBody);
@@ -21,7 +21,7 @@ var Messages = {
     
     messageElement.store('message', message);
     var timestamp = new Date();
-    if (message.data.timestamp) timestamp.setTime(message.data.timestamp * 1000);
+    if (message.timestamp) timestamp.setTime(message.timestamp * 1000);
     messageElement.store('timestamp', timestamp);
     messageElement.set('title', 'Sent: ' + timestamp.toString());// + ' ago.');
     
@@ -35,7 +35,7 @@ var Messages = {
     var scrolly = messages.getParent().getParent();
     var doScroll = (scrolly.getScroll().y + 15 >= scrolly.getScrollSize().y - scrolly.getSize().y);
     var messageElement = Messages.generate(classy, message);
-    messages.adopt(messageElement);
+    //messages.adopt(messageElement);
     
     // handle message reordering
     var prevMsg = messages.getLast();
@@ -45,6 +45,7 @@ var Messages = {
       }
       if (prevMsg) messageElement.inject(prevMsg, 'after');
     }
+    if (!messages.getChildren().contains(messageElement)) messages.adopt(messageElement);
     if (doScroll) scrolly.scrollTo(0, scrolly.getScrollSize().y - scrolly.getSize().y);
     
     // update message count in the title bar
@@ -59,148 +60,16 @@ var Messages = {
 };
 
 
-
-
-// A simple Long Polling comet json stream reciever.
-// Usage: var stream = new StreamConnection('/stream', {room: window.room, multipart: 'no', identity: window.openid}).start();
-var StreamConnection = new Class({
-  Implements: [Events],
-  Binds: ['onSuccess', 'onFailure', 'stop'],
-  
-  streamParams: {},
-  initialLoadDone: false,
-  options: {},
-  lastLoadTimestamp: null,
-  
-  initialize: function(stream, params) {
-    this.source = stream;
-    this.streamParams = params;
-    this.streamParams.poll = 'long';
-  },
-  
-  // start the stream connection
-  start: function(aliver) {
-    this.alive = $defined(aliver) ? aliver : true;
-    this.streamParams.noCache = (Math.random() * 1000000).toInt();
-    this.lastLoadTimestamp = new Date();
-    this._start();
-    return this;
-  },
-  
-  // disconnect the stream
-  stop: function() {
-    this.alive = false;
-    $clear(this.restartTimer);
-    this._stop();
-  },
-  
-  onSuccess: function(obj) {
-    $clear(this.restartTimer);
-    this.streamParams.poll = 'long';
-    
-    if (!this.alive) {
-      this.alive = true;
-      this.fireEvent('streamrestored');
-    }
-    
-    obj.each(function(msg) {
-      this.fireEvent('message', msg);
-    }.bind(this));
-    
-    // we have a longer delay after joining to get browsers to display the page as done loading
-    this.restartTimer = this.start.delay(this.initialLoadDone ? 50 : 555, this);
-    this.initialLoadDone = true;
-  },
-  
-  onFailure: function() {
-    this.streamParams.poll = 'instant';
-    $clear(this.restartTimer);
-    this.restartTimer = this.start.periodical(2500, this, [false]);
-    
-    if (this.alive) {
-      this.alive = false;
-      this.fireEvent('streamlost');
-    }
-  }
-});
-
-var XHRStream = new Class({
-  Extends: StreamConnection,
-  
-  initialize: function(endpoint, params) {
-    this.parent(endpoint, params);
-    this.streamParams.mode = 'lines';
-    this.streamAjax = new Request({
-      method: 'get', link: 'cancel',
-      onSuccess: this.onSuccess.bind(this),
-      onFailure: this.onFailure.bind(this),
-      headers: {}
-    });
-    
-    // work around mootools bug where 'failure' doesn't fire on network errors
-    this.streamAjax.xhr.onabort = this.onFailure;
-    this.streamAjax.xhr.onerror = this.onFailure;
-  },
-  
-  onSuccess: function(text) {
-    var messages = text.split(/\n/).map(function(msg) { return JSON.decode(msg, true) });
-    messages.erase(null);
-    this.parent(messages);
-  },
-  
-  _start: function() { this.streamAjax.send({url: this.source, data: this.streamParams}); },
-  
-  _stop: function() { this.streamAjax.cancel(); }
-});
-
-var JSONStream = new Class({
-  Extends: StreamConnection,
-  Binds: ['onSuccess'],
-  
-  initialize: function(endpoint, params) {
-    this.parent(endpoint, params);
-    this.streamParams.mode = 'array'
-    
-    this.uniqID = 'req_' + (Math.random() * 1000000).toInt().toString(36);
-    JSONStream.requests = JSONStream.requests || {};
-    JSONStream.requests[this.uniqID] = this;
-  },
-  
-  getURL: function() {
-    return this.source + '?' + Hash.toQueryString(this.streamParams);
-  },
-  
-  onSuccess: function(obj) {
-    $clear(this.timeout);
-    this.parent(obj);
-  },
-  
-  _stop: function() {
-    this.workerTag.dispose();
-  },
-  
-  _start: function() {
-    this.streamParams.callback = 'JSONStream.requests.' + this.uniqID + '.onSuccess';
-    if (this.workerTag) this._stop();
-    this.workerTag = new Element('script', {'type': 'application/javascript', 'src': this.getURL(), 'class': 'JSONStream'});
-    document.head.adopt(this.workerTag);
-    
-    $clear(this.timeout);
-    this.timeout = this.onFailure.delay(55000);
-  }
-});
-
-
 var highlightClassMaybe = function(message) {
-  if (message.data.from != window.openid
-   && message.data.body.test('(^|[^a-z0-9])' + Users.lookup(window.openid).name.escapeRegExp() + '($|[^a-z0-9])', 'i')
+  if (message.from != window.openid
+   && message.body.test('(^|[^a-z0-9])' + Users.lookup(window.openid).name.escapeRegExp() + '($|[^a-z0-9])', 'i')
    && stream.initialLoadDone) {
     if (window.fluid) {
-      var sender = Users.lookup(message.data.from);
+      var sender = Users.lookup(message.from);
       //window.fluid.playSoundNamed('Submarine');
       window.fluid.showGrowlNotification({
         title: sender.name + ' mentioned your name',
-        description: message.data.body,
+        description: message.body,
         priority: 1,
         sticky: false,
         identifier: 'Name Highlighted',
@@ -229,22 +98,21 @@ var MessageHandlers = {
     Messages.append('action' + highlightClassMaybe(message), message);
   },
   'text/x-debug': function(message) {
-    //Messages.append('system debug', message);
     if (!stream.initialLoadDone) return;
     if (window.console) {
-      console.log(Users.lookup(message.data.from).name + ': ');
-      console.log(message.data.body);
+      console.log(Users.lookup(message.from).name + ': ');
+      console.log(message.body);
     }
   },
   'application/x-talkie-user-enters': function(message) {
-    if (stream.initialLoadDone && Users.active.contains(message.data.from)) return;
-    Users.active.push(message.data.from);
+    if (stream.initialLoadDone && Users.active.contains(message.from)) return;
+    Users.active.push(message.from);
     Messages.append('system enters', message);
     Users.refreshList();
   },
   'application/x-talkie-user-leaves': function(message) {
-    if (stream.initialLoadDone && !Users.active.contains(message.data.from)) return;
-    Users.active.erase(message.data.from)
+    if (stream.initialLoadDone && !Users.active.contains(message.from)) return;
+    Users.active.erase(message.from)
     Messages.append('system leaves', message);
     Users.refreshList();
   },
@@ -256,17 +124,17 @@ var MessageHandlers = {
     if (stream.initialLoadDone) window.location.href = 'chat';
   },
   'application/x-talkie-user-info': function(message) {
-    message.data.body.each(Users.loadProfile);
+    message.body.each(Users.loadProfile);
   },
   'application/x-talkie-active-users': function(message) {
-    Users.active = message.data.body;
+    Users.active = message.body;
     Users.refreshList();
     
     if (Users.lookup(window.openid)['name'] == 'Anonymous') {
-      Messages.append('local error anonName', {data: {
+      Messages.append('local error anonName', {
         'type': 'text/x-talkie-local-error',
         'body': 'Your name is currently set to “Anonymous”, to change this, press the Leave button above, and enter a name in the text box at the top of that page. You can also upload an avatar and provide a little profile description while there. When done, return to the room by selecting it in the list on that page, or with the Back button in your browser. :)'
-      }});
+      });
     }
   },
   'application/x-talkie-room-cleared': function(message) {
@@ -278,25 +146,25 @@ var MessageHandlers = {
 
 window.addEvent('domready', function() {
   //window.stream = new JSONStream(window.streamEndpoint || '/stream', {room: window.room, mode: 'lines', identity: window.openid});
-  window.stream = new XHRStream('/stream', {room: window.room, mode: 'lines', identity: window.openid});
+  window.stream = new XHRStream('/stream', {rooms: window.room, mode: 'lines', identity: window.openid});
   
   window.stream.addEvent('message', function(message) {
-    if (message.id && message.id > (this.streamParams.last || 0)) this.streamParams.last = message.id
+    if (message.id && message.id > (this.streamParams.positions || 0)) this.streamParams.positions = message.id
     if ($('message-' + message.id)) return;
-    MessageHandlers[message.data.type].run(message, this);
+    MessageHandlers[message.type].run(message, this);
   });
   
   window.stream.addEvent('streamlost', function() {
-    Messages.append('local error', {data: {
+    Messages.append('local error', {
       'type': 'text/x-talkie-local-error',
       'body': 'Excuse us a moment, our tubes are obstructed, our servers went splat, though we’ll surely be back. Hold tight, this client will fight a good fight.'
-    }});
+    });
   });
   window.stream.addEvent('streamrestored', function() {
-    Messages.append('local error', {data: {
+    Messages.append('local error', {
       'type': 'text/x-talkie-local-error',
       'body': 'All Clear, there were no fatalities. Resume your debate on the meaning of life. :)'
-    }});
+    });
   });
   
   if (settings.background && settings.background.enabled) {
@@ -328,7 +196,7 @@ window.addEvent('domready', function() {
     var messageObject = {body: text, type: mimetype, timestamp: (new Date()).getTime() / 1000, from: window.openid};
     var msgJson = JSON.encode(messageObject);
     var msgID = 0 - (stream.streamParams.last || 1);
-    var messageElement = Messages.append(mimetype == 'text/plain' ? 'normal' : 'action', {data: messageObject});
+    var messageElement = Messages.append(mimetype == 'text/plain' ? 'normal' : 'action', messageObject);
     messageElement.set('tween', {duration: 2000, transition: Fx.Transitions.Sine.easeOut});
     messageElement.set('opacity', 0.33);
     messageElement.fade(0.77);
@@ -336,11 +204,11 @@ window.addEvent('domready', function() {
     var failure = function(message) {
       stream.onFailure();
       message = message || 'Due to a network error, your message “' + text + '” was not sent.';
-      messageElement = Messages.generate('local error', {data: {
+      messageElement = Messages.generate('local error', {
         'type': 'text/x-talkie-local-error',
         'timestamp': (new Date()).getTime(),
         'body': message.toString()
-      }}).replaces(messageElement);
+      }).replaces(messageElement);
       //if (window.watchdog) window.watchdog();
       var scrolly = $('messages').getParent().getParent();
       scrolly.scrollTo(0, scrolly.getScrollSize().y - scrolly.getSize().y);
@@ -349,8 +217,7 @@ window.addEvent('domready', function() {
     var success = function(messageText) {
       var result = JSON.decode(messageText);
       if (!result.success) return failure(result.error);
-      $$('#message-' + result.id).destroy();
-      var newMsg = Messages.generate(mimetype == 'text/plain' ? 'normal' : 'action', result);
+      var newMsg = $('message-' + result.id) || Messages.generate(mimetype == 'text/plain' ? 'normal' : 'action', result);
       newMsg.set('tween', {duration: 100, transition: Fx.Transitions.Sine.easeIn});
       newMsg.set('opacity', messageElement.get('opacity'));
       newMsg.fade('in');

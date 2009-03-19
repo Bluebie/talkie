@@ -12,7 +12,8 @@ Stream = lambda do |env|
   
   req = Rack::Request.new(env)
   response = Rack::Response.new()
-  room = req.params["room"].gsub(/[^a-z0-9-]/, '')
+  rooms = req.params["rooms"].split(/,/).map { |r| r.gsub(/[^a-z0-9-]/, '') }
+  room = rooms.first # for now
   settings = JSON.parse(flock_read("rooms/#{room}/settings"))
   msgid = 1; users_infoed = [];
   next_file = proc { "rooms/#{room}/message-#{msgid}" }
@@ -36,7 +37,7 @@ Stream = lambda do |env|
       userinfo['hasAvatar'] = File.exist?("users/#{hash}/avatar-16.png")
       userinfo['userDir'] = "/users/#{hash}"
       userinfo['updated'] = File.mtime("users/#{hash}/profile").to_i
-      outbox << '{"data":{"type":"application/x-talkie-user-info","body":[' + JSON.generate(userinfo) + ']}}'
+      outbox << '{"type":"application/x-talkie-user-info","body":[' + JSON.generate(userinfo) + ']}'
       users_infoed << hash
     end
   end
@@ -51,7 +52,7 @@ Stream = lambda do |env|
       send_user_info[nil, settings['bot']['url']]
       user_infos.push(settings['bot']['url'])
     end
-    outbox << '{"data":{"type":"application/x-talkie-active-users","body":' + JSON.generate(user_infos) + '}}'
+    outbox << '{"type":"application/x-talkie-active-users","body":' + JSON.generate(user_infos) + '}'
   end
   
   
@@ -74,7 +75,7 @@ Stream = lambda do |env|
   
   # determine which message to go looking for
   current = flock_read("rooms/#{room}/message-counter").to_i
-  msgid = (req['last'] || current - InitialLogSize).to_i
+  msgid = (req['positions'] || current - InitialLogSize).to_i
   msgid = 1 if msgid < 1
   msgid += 1 while !File.exist?(next_file[]) && msgid < current
   msgid += 1
@@ -91,12 +92,12 @@ Stream = lambda do |env|
           send_user_info[nil, object['from']] if object['from']
         #end
         
-        outbox << '{"id":' + msgid.to_s + ',"data":' + data + "}"
+        outbox << JSON.generate(object.merge('id' => msgid, 'room' => room))
         msgid += 1
       end
       
       # send the active users list if it's the initial request
-      send_active_users[] unless req['last']
+      send_active_users[] unless req['positions']
       monies = 0 unless outbox.empty?
     end
     
@@ -117,15 +118,14 @@ Stream = lambda do |env|
     response['Content-Type'] = 'text/plain'
     outbox.each { |part| response.write("#{part}\n") }
   when 'array'
-    response['Content-Type'] = req['callback'] ? 'application/javascript' : 'application/json'
+    response['Content-Type'] = req['callback'] ? 'application/javascript' : (req['windowname'] ? 'text/html' : 'application/json')
+    response.write "<!DOCTYPE html>\n<html><head><script>\nwindow.name='" if req['windowname']
     response.write(req['callback'] + '(') if req['callback']
-    response.write "[\n"
-    outbox.each_index do |i|
-      response.write('  ' + outbox[i])
-      response.write(",\n") unless i == outbox.length - 1
-    end
-    response.write "\n]"
+    response.write "["
+    response.write outbox.join(",").gsub(/'/, '\\\\\'')
+    response.write "]"
     response.write ');' if req['callback']
+    response.write "';\n</script></head></html>" if req['windowname']
   else
     response['Content-Type'] = 'text/plain'
     response.write 'Unknown Mode'

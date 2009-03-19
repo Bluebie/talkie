@@ -385,7 +385,7 @@ module UserInterface::Controllers
       BotNotifier[:from] = URL('/').to_s
       BotNotifier[:queue].push(room) if (@settings['bot'] || {})['enabled']
       
-      return '{"success":true,"id":' + id.to_s + ',"data":' + JSON.generate(message) + '}'
+      return JSON.generate(message.merge('success' => true, 'id' => id))
     rescue
       return error("#{$!}\n#{$@.join("\n")}")
     end
