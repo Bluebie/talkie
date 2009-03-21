@@ -151,7 +151,7 @@ var SmiliesParser = new Class({
 // simple singleton object to automatically turn url's in to <a> elements :)
 var AutoLink = {
   //weblinksSensor: /(http|gopher|irc|ftp|telnet|ssh)s?\:\/\/.+( )/
-  weblinkSensor: /[a-zA-Z]+:\/\/([.]?[a-zA-Z0-9_\/?:=&%-])*/,
+  weblinkSensor: /[a-zA-Z]+:\/\/([.]?[a-zA-Z0-9_\/?:@=&%-])*/,
   domainlinkSensor: /(^| )(www([.]?[a-zA-Z0-9_\/-])*)/,
   
   apply: function(element, sensor, builder) {

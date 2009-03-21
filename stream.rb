@@ -21,6 +21,7 @@ class StreamController
       {
         :settings => JSON.parse(flock_read("rooms/#{room}/settings")),
         :position => (positions[room] == 'null') ? nil : positions[room].to_i,
+        :raw_position => positions[room],
         :name => room
       }
     }).flatten]
@@ -132,16 +133,16 @@ class StreamController
     end
     
     def send_active_users(room)
-      user_infos = Dir.entries("rooms/#{room}/active-members").reject { |h| h.include?('.') }.map { |h|
+      user_infos = Dir.entries("rooms/#{room[:name]}/active-members").reject { |h| h.include?('.') }.map { |h|
         send_user(h, false)
         IO.read("users/#{h}/openid")
       }
       
-      if settings['bot'] and settings['bot']['enabled']
-        send_user(nil, settings['bot']['url'])
-        user_infos.push(settings['bot']['url'])
+      if room[:settings]['bot'] and room[:settings]['bot']['enabled']
+        send_user(nil, room[:settings]['bot']['url'])
+        user_infos.push(room[:settings]['bot']['url'])
       end
-      send '{"type":"application/x-talkie-active-users","body":' + JSON.generate(user_infos) + ',"room":"' + room + '"}'
+      send '{"type":"application/x-talkie-active-users","body":' + JSON.generate(user_infos) + ',"room":"' + room[:name] + '"}'
     end
     
     
@@ -180,7 +181,9 @@ class StreamController
         sleep 1.0 / 3.0 if monies > 0
       end
       
-      @rooms.keys.each { |r| send_active_users(r) } unless @req['positions']
+      @rooms.values.each do |room|
+        send_active_users(room) if !room[:raw_position] || room[:raw_position] == 'null'
+      end
       
       blk["]"] if @mode == 'array'
       blk["';\n</script></head></html>"] if @req['windowname']

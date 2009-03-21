@@ -105,16 +105,19 @@ var MessageHandlers = {
     }
   },
   'application/x-talkie-user-enters': function(message) {
-    if (stream.initialLoadDone && Users.active.contains(message.from)) return;
-    Users.active.push(message.from);
+    if (stream.initialLoadDone) {
+      Users.active.push(message.from);
+      Users.refreshList();
+    }
     Messages.append('system enters', message);
-    Users.refreshList();
   },
   'application/x-talkie-user-leaves': function(message) {
-    if (stream.initialLoadDone && !Users.active.contains(message.from)) return;
-    Users.active.erase(message.from)
+    if (stream.initialLoadDone) {
+      Users.active.erase(message.from);
+      Users.refreshList();
+    }
+    
     Messages.append('system leaves', message);
-    Users.refreshList();
   },
   'application/x-talkie-go-home': function(message) {
     Messages.append('system deleted', message);
