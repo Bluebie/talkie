@@ -16,7 +16,7 @@ class StreamController
     # create an array of rooms to watch
     rooms = req['rooms'].split(/,/).map { |r| r.gsub(/[^a-z0-9-]/, '') }
     # turn this in to a hash with room info for keys
-    positions = Hash[*rooms.zip(req['positions'].split(/,/)).flatten]
+    positions = Hash[*rooms.zip((req['positions'] || '').split(/,/)).flatten]
     rooms = Hash[*rooms.zip(rooms.map { |room|
       {
         :settings => JSON.parse(flock_read("rooms/#{room}/settings")),
@@ -173,7 +173,7 @@ class StreamController
         sleep 1.0 / 3.0 if monies > 0
       end
       
-      @rooms.each { |r| send_active_users(r) } unless @req['positions']
+      @rooms.keys.each { |r| send_active_users(r) } unless @req['positions']
       
       blk["]"] if @mode == 'array'
       blk["';\n</script></head></html>"] if @req['windowname']
