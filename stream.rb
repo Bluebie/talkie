@@ -82,7 +82,14 @@ class StreamController
       'text/plain'
     end
     
-    return [200, response, StreamThinger.new(req, rooms)]
+    # this is buggy for some reason, so we'll do it the old fashioned way...
+    #return [200, response, StreamThinger.new(req, rooms)]
+    # so we'll do it like this instead, thin doesn't seem to like streaming, or something
+    # P.S. I hate thin. Mongrel works great. Thin is edge trash <_<
+    body = String.new
+    StreamThinger.new(req, rooms).each { |str| body << str.to_s }
+    response['Content-Length'] = body.length.to_s # might as well since we're doing this anyways...
+    return [200, response, [body]]
   end
   
   
