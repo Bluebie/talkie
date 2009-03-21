@@ -102,7 +102,7 @@ module UserInterface::Views
         
         div.rooms do
           @rooms[0...6].each do |room|
-            a(:class => "roomButton #{'dead' if room['last-beat'] < Time.now - 60*10}", :href => room['url']) do
+            a(:class => "roomButton #{'dead' if room['last-beat'].to_i < Time.now.to_i - 60*10}", :href => room['url']) do
               img.ender :src => "#{@root}/style/room-square-top.png"
               roomav = room_or_default(room['id'], 'avatar-80.png')
               img.bigAvatar(:src => "#{@root}/style/sidebar-pavatar-rounding.png",

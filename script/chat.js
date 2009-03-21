@@ -23,7 +23,7 @@ var Messages = {
     var timestamp = new Date();
     if (message.timestamp) timestamp.setTime(message.timestamp * 1000);
     messageElement.store('timestamp', timestamp);
-    messageElement.set('title', 'Sent: ' + timestamp.toString());// + ' ago.');
+    messageElement.set('title', 'Sent: ' + timestamp.toLocaleString());// + ' ago.');
     
     return messageElement;
   },
@@ -146,10 +146,10 @@ var MessageHandlers = {
 
 window.addEvent('domready', function() {
   //window.stream = new JSONStream(window.streamEndpoint || '/stream', {room: window.room, mode: 'lines', identity: window.openid});
-  window.stream = new XHRStream('/stream', {rooms: window.room, mode: 'lines', identity: window.openid});
+  window.stream = new XHRStream('/stream', {rooms: window.room, positions: 'null', mode: 'lines', identity: window.openid});
   
   window.stream.addEvent('message', function(message) {
-    if (message.id && message.id > (this.streamParams.positions || 0)) this.streamParams.positions = message.id
+    if (message.id && message.id > (this.streamParams.positions == 'null' ? 0 : this.streamParams.positions)) this.streamParams.positions = message.id;
     if ($('message-' + message.id)) return;
     MessageHandlers[message.type].run(message, this);
   });
@@ -281,18 +281,6 @@ window.addEvent('domready', function() {
   
   tabSense.inject('message', 'after');
   
-  
-  
-  
-  // keep the tooltips up to date
-/*
-  window.toolUpdator = (function() {
-    $$('#messages .message').each(function(i) {
-      var timestamp = i.retrieve('timestamp');
-      if (timestamp) i.set('title', 'Sent ' + timestamp.relativeTime() + ' ago.');
-    });
-  }).periodical(60000);
-*/
   
   // work around firefox braindeadly killing the stream then letting javascript reconnect it.
   window.addEvents({'beforeunload': stream.stop, 'unload': stream.stop});
