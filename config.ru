@@ -1,4 +1,3 @@
-#($:.unshift File.expand_path( File.dirname(__FILE__) )).uniq!
 Dir.chdir(File.dirname(__FILE__))
 require 'ui'
 
@@ -21,9 +20,7 @@ apps << lambda do |env|
 end
 
 apps << Rack::Builder.new do
-  #use Rack::Recursive
   use Rack::ShowExceptions
-  #use Rack::Reloader
   
   map "/stream" do
     require 'stream.rb'
@@ -45,7 +42,6 @@ apps << Rack::Builder.new do
         [200, {
           'Content-Type'=> 'application/javascript',
           'X-Awesome-Pony'=> 'Bluebie',
-#           'Content-Length'=> data.length.to_s,
           'Last-Modified'=> time.httpdate
         }, [data]]
       else

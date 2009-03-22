@@ -1,6 +1,4 @@
 #!/usr/bin/ruby
-#require '../../paths'
-
 require 'rubygems'
 require 'camping'
 require 'camping/session'

@@ -12,7 +12,14 @@ module UserInterface::Views
       link :rel => 'stylesheet', :href => "#{@root}/style/sheet.css?last-modified=#{File.mtime('style/sheet.css').to_i}"
       #load_scripts 'mootools-1.2.1-core-yc.js', 'mootools-1.2.1-more-rc01-multi-more.js', 'core.js', 'cufon-yui.js', 'Complete_in_Him_400.font.js'
       script :src => "#{@root}/script/compiled?last-modified=#{File.mtime('script').to_i}"
-      script "Cufon.replace('.text');"
+      script do
+        text "Cufon.replace('.text');"
+        text "window.urlroot = #{JSON.generate(@root)};"
+        text "window.room = #{JSON.generate(@room)};" if @room
+        text "window.settings = #{JSON.generate(@settings)};" if @settings
+        text "window.openid = #{JSON.generate(@state.identity)};" if @state.identity
+        text "window.smiliesData = #{JSON.generate(@smilies)};" if @smilies
+      end
       @headstuff.call if @headstuff
     end
     body do
@@ -129,20 +136,6 @@ module UserInterface::Views
   
   def chat
     @headstuff = proc do
-      script do
-        text "window.room = #{JSON.generate(@room)};"
-        text "window.settings = #{JSON.generate(@settings)};"
-        text "window.openid = #{JSON.generate(@state.identity)};"
-        text "window.smiliesData = #{JSON.generate(@smilies)};"
-        
-        unless @request.host == 'localhost' || @input.nocd
-          url = URL('/stream')
-          url.host = "s#{rand((2 ** 64) - 1).to_s(36)}.#{url.host}"
-          text "window.streamEndpoint = #{JSON.generate(url.to_s)};"
-        else
-          text "window.streamEndpoint = '/stream';"
-        end
-      end
       load_scripts 'chat.js'
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
     end

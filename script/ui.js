@@ -1,0 +1,54 @@
+// A simple collection of element builder functions for various bits of UI inside of talkie, for dynamically building windows.
+var UI = {
+  // makes a container (looks like a window), be sure to .getFirst() the resulting element to get the body to stick stuff in
+  container: function(type) {
+    type = type || 'regular';
+    var cont = new Element('div', {'class': type + 'Container'});
+    var body = new Element('div', {'class': type + 'Body'});
+    var foot = new Element('div', {'class': 'footer'});
+    cont.adopt(body); cont.adopt(foot);
+    return cont;
+  },
+    
+  // Usage: UI.bar(), or optionally UI.bar('top'), or 'bottom' depending on where it is in the window. :)
+  bar: function(end) {
+    return (new Element('div', {'class': 'bar' + (end ? ' '+end : '')}));
+  },
+  
+  // Usage: something.adopt(UI.button('thing', 'left', {href: '/somewhere'}));
+  button: function(text, type, options) {
+    var btn = new Element('a', options);
+    btn.addClass(type || 'square');
+    if (text) btn.set('text', text);
+    return btn;
+  },
+  
+  // for use in the bar's for nicely rendered fancy font text titles
+  title: function(text) {
+    var div = new Element('div', {'class': 'title'});
+    var subdiv = new Element('div', {'class': 'text', 'text': text});
+    div.adopt(subdiv);
+    if (Cufon) Cufon.replace(subdiv);
+    return div;
+  },
+  
+  // for use inside a bar for positioning, make sure to set the 'type' for buttons so they hang over correctly too :)
+  centered: function() { return (new Element('div', {'class': 'centered'})); },
+  lefted: function() { return (new Element('div', {'class': 'lefted'})); },
+  righted: function() { return (new Element('div', {'class': 'righted'})); },
+  
+  // stuff for the content of a window below the bar
+  rule: function() { return (new Element('div', {'class': 'rule', 'html': '<hr/>'})); },
+  
+  // makes a sidebar container to put sidebarBoxy's inside of, like in the default chat client
+  sidebar: function() { return (new Element('div', {'class': 'sidebar'})); },
+  
+  // be sure to .getElement('.body') the resulting element to get the body to stick things in.
+  sidebarBoxy: function() {
+    var boxy = new Element('div', {'class', 'boxy'});
+    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-top.png"}));
+    boxy.adopt(new Element('div', {'class': 'body'}));
+    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-bottom.png"}));
+    return boxy;
+  }
+}
