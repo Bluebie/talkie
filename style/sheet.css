@@ -164,7 +164,7 @@ div.rooms a.dead { opacity: 0.5; }
 /* the sidebar */
 .sidebar { position: absolute; bottom: 10px; right: 10px; width: 151px; }
 .boxy { background-color: #CCCC52; width: 151px; margin-top: 10px; }
-.boxy .body { padding: 0 5px; }
+.boxy .body { padding: 0 5px; text-overflow: ellipsis; }
 .boxy .body a.button b { font-weight: normal; width: 105px; text-align: center; display: inline-block; }
 .boxy .body .user { margin: 5px 0; color: #192B33; display: block; white-space: nowrap; cursor: default; }
 #userlist .top { margin-bottom: -5px; }

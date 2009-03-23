@@ -148,6 +148,44 @@ var MessageHandlers = {
 
 
 window.addEvent('domready', function() {
+  
+  //// Build the page
+  document.body.adopt(container = UI.container());
+  body = container.getFirst();
+  // the bar up top
+  body.adopt(bar = UI.bar('top'));
+  bar.adopt(centered = UI.centered());
+  centered.adopt(UI.title(window.settings.title));
+  bar.adopt(lefted = UI.lefted());
+  lefted.adopt(UI.button('Leave', 'left', { href: 'leave', 'id': 'leave' }));
+  if (settings.owners.contains(window.openid)) {
+    bar.adopt(righted = UI.righted());
+    righted.adopt(UI.button('Settings', 'square', { href: 'setup' }));
+  }
+  
+  // the short scrolly for the messages
+  body.adopt(scrolly = UI.scrolly(true));
+  scrolly.adopt(wrap = new Element('div', {'class': 'wrap'}));
+  wrap.adopt(messages = new Element('div', {'id': 'messages'}));
+  wrap.adopt(sidebar = UI.sidebar());
+  sidebar.adopt(UI.sidebarBoxy({'id': 'userlist'}));
+  
+  // the message composer area
+  body.adopt(inputBox = new Element('form', {'class': 'inputBox'}));
+  inputBox.addEvent('submit', function() {
+    window.sendMessage();
+    return false;
+  });
+  inputBox.adopt(new Element('input', {'id': 'message', 'type': 'text', 'maxlength': '2500', 'autocomplete': 'off'}));
+  inputBox.adopt(smiliesBox = new Element('div', {'id': 'smilies'}));
+  smiliesBox.adopt(selector = new Element('div', {'id': 'smiliesSelector', 'class': 'menu'}));
+  menuify(selector);
+  selector.adopt(new Element('div', {'class': 'body'}));
+  selector.adopt(new Element('div', {'class': 'footer'}));
+  inputBox.adopt(UI.button('Send', 'square', {'id': 'sendMessage'}));
+  
+  
+  
   //window.stream = new JSONStream(window.streamEndpoint || '/stream', {room: window.room, mode: 'lines', identity: window.openid});
   window.stream = new XHRStream('/stream', {rooms: window.room, positions: 'null', mode: 'lines', identity: window.openid});
   
@@ -329,9 +367,9 @@ window.addEvent('domready', function() {
 
 
 window.addEvent('load', function() {
-  window.stream.start();
+  window.stream.start.delay(50, window.stream);
   
-  /*window.watchdogTimeout = 55; // seconds
+  window.watchdogTimeout = 60; // seconds
   window.watchdog = function() {
     var now = new Date();
     if (stream.lastLoadTimestamp == null || stream.lastLoadTimestamp.getTime() < (now.getTime() - (window.watchdogTimeout * 1000))) {
@@ -341,7 +379,7 @@ window.addEvent('load', function() {
   }
   
   window.watchdogTimer = watchdog.periodical(2500);
-  window.addEvents('focus', watchdog);*/
+  window.addEvents('focus', watchdog);
 });
 
 

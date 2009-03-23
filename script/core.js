@@ -1,26 +1,28 @@
+function menuify(menu) {
+  menu.setStyle('visibility', 'hidden');
+  
+  var hide = function () { menu.setStyle('visibility', 'hidden'); menu.fireEvent('menuhidden'); }
+  var show = function () { menu.setStyle('visibility', 'visible'); menu.fireEvent('menushown'); }
+  
+  var closer;
+  menu.getParent().addEvents({
+    click: function() {
+      if (menu.getStyle('visibility') == 'hidden') show();
+      else hide();
+    },
+    mouseleave: function() {
+      closer = (function () { hide(); }).delay(2000);
+    },
+    mouseenter: function() { $clear(closer); }
+  });
+}
+
 window.addEvent('domready', function () {
   // add's a class so we can do browser specific css really easy :)
   $(document.body).addClass(Browser.Engine.name);
   
   // makes menu's work
-  $$('.menu').each(function(menu) {
-    menu.setStyle('visibility', 'hidden');
-    
-    var hide = function () { menu.setStyle('visibility', 'hidden'); menu.fireEvent('menuhidden'); }
-    var show = function () { menu.setStyle('visibility', 'visible'); menu.fireEvent('menushown'); }
-    
-    var closer;
-    menu.getParent().addEvents({
-      click: function() {
-        if (menu.getStyle('visibility') == 'hidden') show();
-        else hide();
-      },
-      mouseleave: function() {
-        closer = (function () { hide(); }).delay(2000);
-      },
-      mouseenter: function() { $clear(closer); }
-    });
-  });
+  $$('.menu').each(menuify);
   
   // if smilies are available, set up a parser
   if (window.smiliesData) {

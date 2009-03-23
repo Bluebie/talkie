@@ -1,12 +1,13 @@
 // A simple collection of element builder functions for various bits of UI inside of talkie, for dynamically building windows.
 var UI = {
   // makes a container (looks like a window), be sure to .getFirst() the resulting element to get the body to stick stuff in
-  container: function(type) {
+  container: function(type, opts) {
     type = type || 'regular';
-    var cont = new Element('div', {'class': type + 'Container'});
+    var cont = new Element('div', Hash.combine({'class': type + 'Container'}, opts || {}));
     var body = new Element('div', {'class': type + 'Body'});
     var foot = new Element('div', {'class': 'footer'});
     cont.adopt(body); cont.adopt(foot);
+    recenter.delay(50);
     return cont;
   },
     
@@ -17,9 +18,11 @@ var UI = {
   
   // Usage: something.adopt(UI.button('thing', 'left', {href: '/somewhere'}));
   button: function(text, type, options) {
-    var btn = new Element('a', options);
+    var btn = new Element('a', options || {});
+    btn.addClass('button');
     btn.addClass(type || 'square');
     if (text) btn.set('text', text);
+    (new Element('em')).inject(btn, 'top');
     return btn;
   },
   
@@ -44,11 +47,18 @@ var UI = {
   sidebar: function() { return (new Element('div', {'class': 'sidebar'})); },
   
   // be sure to .getElement('.body') the resulting element to get the body to stick things in.
-  sidebarBoxy: function() {
-    var boxy = new Element('div', {'class', 'boxy'});
-    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-top.png"}));
+  sidebarBoxy: function(opts) {
+    var boxy = new Element('div', Hash.combine({'class': 'boxy'}, opts || {}));
+    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-top.png", 'class': 'ender top'}));
     boxy.adopt(new Element('div', {'class': 'body'}));
-    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-bottom.png"}));
+    boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-bottom.png", 'class': 'ender bottom'}));
     return boxy;
+  },
+  
+  // a scrollable box.. add's a scrollbar basically
+  scrolly: function(short) {
+    var scroll = new Element('div', {'class': 'scroll'});
+    if (short) scroll.addClass('shortScroll');
+    return scroll;
   }
 }

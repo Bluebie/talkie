@@ -79,8 +79,8 @@ var XHRStream = new Class({
     });
     
     // work around mootools bug where 'failure' doesn't fire on network errors
-    this.streamAjax.xhr.onabort = this.onFailure;
-    this.streamAjax.xhr.onerror = this.onFailure;
+    this.streamAjax.xhr.onabort = this.onFailure.bind(this);
+    this.streamAjax.xhr.onerror = this.onFailure.bind(this);
   },
   
   onSuccess: function(text) {
@@ -115,6 +115,7 @@ var JSONStream = new Class({
   
   onSuccess: function(obj) {
     $clear(this.timeout);
+    this.lastLoadTimestamp = new Date();
     this.parent(obj);
   },
   

@@ -90,6 +90,7 @@ class StreamController
     body = String.new
     StreamThinger.new(req, rooms).each { |str| body << str.to_s }
     response['Content-Length'] = body.length.to_s # might as well since we're doing this anyways...
+    response['X-Awesome-Dinosaur'] = 'Iguanodon'
     return [200, response, [body]]
   end
   
@@ -109,9 +110,10 @@ class StreamController
     
     def send(text)
       return if text.to_s.empty?
+      text = JSON.utf8_to_json(text.to_s) if @req['windowname']
       if @mode == 'array'
         @sendblk.call(',') if @sent_anything
-        @sendblk.call(text.to_s.gsub(/'/, '\\\\\''))
+        @sendblk.call(text.to_s)
       elsif @mode == 'lines'
         @sendblk.call("#{text}\n")
       end

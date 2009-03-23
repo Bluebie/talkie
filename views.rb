@@ -139,38 +139,35 @@ module UserInterface::Views
       load_scripts 'chat.js'
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
     end
-    
-    regularContainer do
-      div.bar.top do
-        div.lefted { button('Leave', :left, :href => R(LeaveRoom, @room), :id => 'leave') }
-        div.centered { barTitle(@settings['title']) }
-        div.righted { button('Settings', :href => R(RoomSettings, @room)) } if user_owns_room?(@room)
-      end
-      
-      div.scroll.shortScroll do
-        div.wrap do
-          div.messages! {}
-          
-          div.sidebar do
-            sidebarBoxy(:id => 'userlist') { }
-#             sidebarBoxy do
-#               button("<b>Add Picture</b>")
-#             end
-          end
-        end
-      end
-      
-      div.inputBox do
-        input :id => 'message', :type => 'text', :maxlength => '2500'
-        div.smilies! do
-          div.menu.smiliesSelector! do
-            div.body {}
-            div.footer {}
-          end
-        end
-        button 'Send', :id => 'sendMessage'
-      end
-    end
+    return ''
+#     regularContainer do
+#       div.bar.top do
+#         div.lefted { button('Leave', :left, :href => R(LeaveRoom, @room), :id => 'leave') }
+#         div.centered { barTitle(@settings['title']) }
+#         div.righted { button('Settings', :href => R(RoomSettings, @room)) } if user_owns_room?(@room)
+#       end
+#       
+#       div.scroll.shortScroll do
+#         div.wrap do
+#           div.messages! {}
+#           
+#           div.sidebar do
+#             sidebarBoxy(:id => 'userlist') { }
+#           end
+#         end
+#       end
+#       
+#       div.inputBox do
+#         input :id => 'message', :type => 'text', :maxlength => '2500'
+#         div.smilies! do
+#           div.menu.smiliesSelector! do
+#             div.body {}
+#             div.footer {}
+#           end
+#         end
+#         button 'Send', :id => 'sendMessage'
+#       end
+#     end
   end
   
   def room_gone
