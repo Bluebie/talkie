@@ -136,7 +136,9 @@ module UserInterface::Views
   
   def chat
     @headstuff = proc do
-      load_scripts 'chat.js'
+      #load_scripts 'chat.js'
+      link :href => "#{@root}/UIs/#{@settings['interface'] || 'chatie'}/styles.css", :rel => 'stylesheet'
+      script :src => "#{@root}/UIs/#{@settings['interface'] || 'chatie'}/script.js"
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
     end
     return ''

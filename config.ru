@@ -7,13 +7,14 @@ apps = Array.new
 
 apps << lambda do |env|
   begin
-    if !env['HTTP_IF_MODIFIED_SINCE'] || File.mtime(env['PATH_INFO'].sub(/\//, '')) > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
+    mtime = File.mtime(env['PATH_INFO'].sub(/\//, ''))
+    if !env['HTTP_IF_MODIFIED_SINCE'] || mtime > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
       r = file_handler.call(env)
       r[1]['Expires'] = (Time.now + 60*60*24).httpdate if env['PATH_INFO'] =~ /(script|style|default|users|rooms|sounds)/
-      r[1]['X-Awesome-Concept'] = 'Telepathy'
+      #r[1]['X-Awesome-Concept'] = 'Telepathy'
       r
     else
-      [304, {}, ['']]
+      [304, {'Last-Modified' => mtime.httpdate}, ['']]
     end
   rescue
     return [404, {}, ['']]
@@ -56,7 +57,7 @@ apps << Rack::Builder.new do
           'Last-Modified'=> time.httpdate
         }, [data]]
       else
-        [304, {'Content-Type' => 'application/javascript'}, ['']]
+        [304, {}, ['']]
       end
     })
   end

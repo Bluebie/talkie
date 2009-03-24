@@ -3,7 +3,7 @@ var UI = {
   // makes a container (looks like a window), be sure to .getFirst() the resulting element to get the body to stick stuff in
   container: function(type, opts) {
     type = type || 'regular';
-    var cont = new Element('div', Hash.combine({'class': type + 'Container'}, opts || {}));
+    var cont = new Element('div', Hash.combine({'class': type + 'Container container'}, opts || {}));
     var body = new Element('div', {'class': type + 'Body'});
     var foot = new Element('div', {'class': 'footer'});
     cont.adopt(body); cont.adopt(foot);

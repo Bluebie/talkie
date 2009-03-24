@@ -154,11 +154,6 @@ div.rooms a.dead { opacity: 0.5; }
 
 /* The Chat Pages */
 .shortScroll { height: 442px; }
-.inputBox { position: absolute; bottom: 0; border-top: 2px solid #CCCC52; height: 26px; width: 640px; background: white url("chat-input.png"); }
-.inputBox input { width: 556px; border: 0 none; outline: 0 none; padding: 0; margin: 0; background-color: transparent; height: 26px; line-height: 26px; padding-left: 5px; -webkit-appearance: none; }
-.gecko .inputBox input { padding-top: 5px; }
-.inputBox #smilies { position: absolute; margin-top: 5px; width: 16px; height: 16px; background-image: url('../default/room/smilies/smile.png'); display: inline; cursor: pointer; }
-.inputBox .button { position: absolute; right: 0; bottom: 1px; }
 .wrap { position: relative; }
 
 /* the sidebar */
@@ -167,28 +162,9 @@ div.rooms a.dead { opacity: 0.5; }
 .boxy .body { padding: 0 5px; text-overflow: ellipsis; }
 .boxy .body a.button b { font-weight: normal; width: 105px; text-align: center; display: inline-block; }
 .boxy .body .user { margin: 5px 0; color: #192B33; display: block; white-space: nowrap; cursor: default; }
-#userlist .top { margin-bottom: -5px; }
-#userlist .bottom { margin-top: -5px; }
-
-/* smilies selector popup */
-#smiliesSelector { position: absolute; bottom: 25px; width: 114px; margin-left: -49px; z-index: 10000; cursor: default; }
-#smiliesSelector .body { background-image: url(smilies-selector.png); background-position: top center; padding: 7px; padding-bottom: 0; }
-#smiliesSelector .footer { background-image: url(smilies-selector.png); background-position: bottom center; width: 114px; margin-left: 0; height: 6px; }
-#smiliesSelector .body .smilie { padding: 2px; cursor: pointer; }
-#smiliesSelector .body .smilie:hover { background: url(smily-selected.png) no-repeat center center; }
 
 /* favicon widget styling */
 .favatar { display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -3px; background-color: white; }
-
-#messages { min-height: 442px; overflow: hidden; }
-.message { margin: 0.8em 0; color: #192B33; line-height: 1.4; -webkit-text-size-adjust: none; }
-.message .user { position: absolute; width: 450px; left: -300px; height: 1.5em; overflow: hidden; text-align: right; }
-.message .body { margin-left: 55px; text-indent: 100px; width: 390px; display: block; word-wrap: break-word; }
-.message .body .smiley { vertical-align: middle; }
-#messages .highlight { background-color: #FFD933; padding: 1ex 0 1ex 0; }
-
-#messages .normal .body { margin-left: 70px; }
-#messages .action { font-style: italic; }
 
 /* the create room page */
 .bigBlock { background-color: #CCCC52; width: 600px; margin: 20px; }
