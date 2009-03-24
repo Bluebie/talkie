@@ -149,6 +149,9 @@ var MessageHandlers = {
 
 window.addEvent('domready', function() {
   
+  //// set the title
+  document.title = settings.title + ' — ' + document.title;
+  
   //// Build the page
   document.body.adopt(container = UI.container());
   body = container.getFirst();
