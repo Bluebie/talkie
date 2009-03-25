@@ -37,10 +37,10 @@ module UserInterface::Views
     
     regularContainer do
       div.bar.top do
-        barTitle('Talkie Chats')
+        barTitle("#{AppName} Chats")
       end
       
-      p.intro "Talkie is a tiny little place to chat. Built to be beautiful and simple. A place for creative people of all styles. Come on in and bring your friends! This peaceful community is dedicated to maintaining a high standard of chatter, so leave your loopholes at the door. If you have an idea on how to make Talkie an even better place to be, speak up in the Talkie Feedback room once you login!"
+      p.intro "#{AppName} is a tiny little place to chat. Built to be beautiful and simple. A place for creative people of all styles. Come on in and bring your friends! This peaceful community is dedicated to maintaining a high standard of chatter, so leave your loopholes at the door. If you have an idea on how to make #{AppName} an even better place to be, speak up in the Feedback room once you login!"
       
       div.rule { hr }
       
@@ -62,7 +62,7 @@ module UserInterface::Views
       end
       
       div.error @error if @error
-      noscript { div.error("Javascript is required to use Talkie. Enable it in your browser preferences.") }
+      noscript { div.error("Javascript is required to use #{AppName}. Enable it in your browser preferences.") }
     end
   end
   
@@ -137,8 +137,10 @@ module UserInterface::Views
   def chat
     @headstuff = proc do
       #load_scripts 'chat.js'
-      link :href => "#{@root}/UIs/#{@settings['interface'] || 'chatie'}/styles.css", :rel => 'stylesheet'
-      script :src => "#{@root}/UIs/#{@settings['interface'] || 'chatie'}/script.js"
+      ui_root = "#{@root}/UIs/#{@settings['interface'] || 'chatie'}"
+      link :href => "#{ui_root}/styles.css", :rel => 'stylesheet'
+      script "window.ui_root = #{JSON.generate(ui_root + '/')};"
+      script :src => "#{ui_root}/script.js"
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
     end
     return ''
@@ -306,10 +308,10 @@ module UserInterface::Views
     end
   end
   
-  def not_implemented
+  def generic_error(title, message)
     regularContainer {
-      div.bar.top { div.lefted { button('Back', :left, :onclick => 'history.go(-1)') }; barTitle("Not Implemented") }
-      p.intro "This isn’t implemented yet, will be soon though! Hit back in your browser to get back to where you were at"
+      div.bar.top { div.lefted { button('Back', :left, :onclick => 'history.go(-1)') }; barTitle(title || "error") }
+      p.intro message.to_s
     }
   end
   

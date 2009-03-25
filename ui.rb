@@ -91,7 +91,7 @@ BotNotifier = Thread.new do
     end
     
     raise CurlError.new("Curl Request Failed, error: #{CurlErrorMeanings[$?.to_s] || $?}") unless system('curl',
-      '--user-agent', 'Talkie Bot Runner',
+      '--user-agent', "#{AppName} Bot Runner",
       '--connect-timeout', '3',
       '--data-binary', JSON.generate(messages),
       '--header', 'Content-Type: application/json',
@@ -115,10 +115,10 @@ BotNotifier = Thread.new do
     FileUtils.touch("#{bot_dir}/bot")
     
     alter_json("#{bot_dir}/profile") do |o|
-      if o['name'] != header_list['X-Talkie-Name']
-        o['name'] = header_list['X-Talkie-Name']
+      if o['name'] != header_list['X-Profile-Name']
+        o['name'] = header_list['X-Profile-Name']
       end
-    end if header_list.has_key?('X-Talkie-Name')
+    end if header_list.has_key?('X-Profile-Name')
     
     returned_messages = [returned_messages] if returned_messages.is_a?(Hash)
     raise 'Returned object is not an array' unless returned_messages.is_a?(Array)

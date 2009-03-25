@@ -31,8 +31,8 @@ module UserInterface::Helpers
   def talkie_user
     dir = userdir('http://talkie.me/')
     alter_json("#{dir}/profile") do |o|
-      o['name'] = 'Talkie'
-      o['desc'] = 'Talkie Bot'
+      o['name'] = "#{AppName}"
+      o['desc'] = "#{AppName} Bot"
     end
     'http://talkie.me/'
   end
@@ -141,6 +141,19 @@ module UserInterface::Helpers
     @error = 'You need to login to view this page'
     @body = render(:login)
     return false
+  end
+  
+  # attempt to drastically reduce the risk of cross site request forgery
+  def safeguard_referer
+    our_domain = URI.new(@request.url).host.to_s rescue false
+    their_domain = URI.new(@request['HTTP_REFERRER']).host.to_s rescue false
+    if their_domain && our_domain.downcase != their_domain.downcase
+      @status = 403
+      @body = render(:generic_error, 'Cross Site Link Error', "In order to protect the security of user accounts, this request has been blocked, due to the referrer provided with it specifying a different domain to #{our_domain}")
+      return false
+    else
+      return true
+    end
   end
   
   # add a message to a room

@@ -209,8 +209,9 @@ module UserInterface::Controllers
       room_id = "--#{rand((2 ** len) - 1).to_s(36)}" and len = 64 until !File.exist?("rooms/#{room_id}")
       
       default_settings = {
-        :title => input.name || "Temporary Talkie Room",
+        :title => input.name || "Temporary #{AppName} Room",
         :desc => input.desc || "",
+        :interface => input.interface || 'chatie',
         :owners => [],
         :type => 'democracy'
       }
