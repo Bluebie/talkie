@@ -190,11 +190,13 @@ module UserInterface::Controllers
         File.open("rooms/#{input.room_id}/active-users", 'w')     { |f| f.write('[]') }
         File.open("rooms/#{input.room_id}/message-counter", 'w')  { |f| f.write('0') }
         File.open("rooms/#{input.room_id}/settings", 'w')         { |f| f.write(JSON.generate(default_settings)) }
+        File.open("rooms/#{input.room_id}/state", 'w')            { |f| f.write('{}') }
         
         File.chmod(0777, "rooms/#{input.room_id}", "rooms/#{input.room_id}/active-members")
         File.chmod(0666, "rooms/#{input.room_id}/active-users",
                          "rooms/#{input.room_id}/message-counter",
-                         "rooms/#{input.room_id}/settings")
+                         "rooms/#{input.room_id}/settings",
+                         "rooms/#{input.room_id}/state")
         
         redirect RoomSettings, input.room_id
       end
@@ -221,13 +223,15 @@ module UserInterface::Controllers
       File.open("rooms/#{room_id}/active-users", 'w')     { |f| f.write('[]') }
       File.open("rooms/#{room_id}/message-counter", 'w')  { |f| f.write('0') }
       File.open("rooms/#{room_id}/settings", 'w')         { |f| f.write(JSON.generate(default_settings)) }
+      File.open("rooms/#{room_id}/state", 'w')            { |f| f.write('{}') }
       
       TempRoomCleaner.wakeup
       
       File.chmod(0777, "rooms/#{room_id}", "rooms/#{room_id}/active-members")
       File.chmod(0666, "rooms/#{room_id}/active-users",
                        "rooms/#{room_id}/message-counter",
-                       "rooms/#{room_id}/settings")
+                       "rooms/#{room_id}/settings",
+                       "rooms/#{room_id}/state")
       
       send_message(room_id,
         :type => 'text/x-talkie-action',
@@ -305,6 +309,10 @@ module UserInterface::Controllers
         settings['bot'] ||= {}
         settings['bot']['enabled']        = input.bot_enabled == 'on'
         settings['bot']['url']            = input.bot_url
+        
+        FileUtils.touch("rooms/#{room}/state")
+        alter_text("rooms/#{room}/state") { "{}" } if settings['interface'] != input.interface
+        settings['interface']             = input.interface.gsub(/[^a-z-]/, '')
       end
       
       File.open("rooms/#{room}/bot-error-allowance", 'w') { |f| f.write('100') }
@@ -316,7 +324,7 @@ module UserInterface::Controllers
         raise 'Bot URL is not a http:// web address' unless url.scheme.downcase == 'http'
       rescue
         raise 'Error parsing Bot URL. Bot will not function till fixed.'
-      end
+      end unless input.bot_url.to_s.empty?
       
       #send_message(room, 'type' => 'application/x-talkie-reload', 'from' => @state.identity)
       send_message(room, 'type' => 'text/x-talkie-action', 'from' => @state.identity, :body => 'changed the room settings. You might want to reload the page to receive any updates, don’t have to though. :)')
@@ -324,12 +332,6 @@ module UserInterface::Controllers
     rescue Object
       @error = $!.to_s
       render :room_settings
-    end
-  end
-  
-  class CheckBotRunner < R '/check-botrunner'
-    def get
-      return BotNotifier.status.inspect
     end
   end
   
@@ -370,8 +372,7 @@ module UserInterface::Controllers
       
       src_msg = JSON.parse(input.message)
       message = {'from' => @state.identity, 'type' => src_msg['type'] || 'text/plain', 'body' => src_msg['body'] || ''}
-      return error('Cannot send application/x-talkie-... typed messages') if message['type'] =~ /^application\/x\-talkie/i
-      return error('Cannot send message over 5kb big: ' + message['body']) if message['body'].length > 5_120
+      err = validate(message) and return error(err) # check it's valid
       id = send_message(room, message)
       
       # clear out old junk
@@ -386,9 +387,49 @@ module UserInterface::Controllers
       BotNotifier[:from] = URL('/').to_s
       BotNotifier[:queue].push(room) if (@settings['bot'] || {})['enabled']
       
+      if input.state && input.state_type && input.state_operation
+        new_state = JSON.parse(input.state)
+        return error("Cannot set state to be a #{new_state.class.name}") unless new_state.is_a?(Hash)
+        
+        state_file = {
+          'individual' => "/rooms/#{room}/active-members/#{userhash}",
+          'global' => "/rooms/#{room}/state"
+        }[input.state_type]
+        
+        alter_json(state_file) do |state|
+          old_state = state.dup
+          case input.state_operation
+          when 'shallow-merge'
+            new_state.each { |k,v| state[k] = v }
+          when 'deep-merge'
+            merger = lambda do |subject, overlay|
+              overlay.each do |k,v|
+                if v.is_a?(Hash)
+                  merger.call(subject[k], v)
+                else
+                  subject[k] = v
+                end
+              end
+            end
+            
+            merger.call(state, new_state)
+          when 'replace'
+            state = new_state
+          end
+          state = old_state if state.to_s.length > 10_000
+        end
+      end
+      
       return JSON.generate(message.merge('success' => true, 'id' => id))
     rescue
       return error("#{$!}\n#{$@.join("\n")}")
+    end
+    
+    def validate(message)
+      return 'Cannot send application/x-talkie-... typed messages' if message['type'] =~ /^application\/x\-talkie/i
+      return 'Cannot send message over 5kb big: ' + message['body'] if message['body'].length > 5_120
+      # for custom applications requiring server side validation, add more here
+      nil
     end
     
     def error(text)

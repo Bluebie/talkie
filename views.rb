@@ -2,7 +2,6 @@ module UserInterface::Views
 
   def layout
     @auto_validation = false
-    #@headers['Content-Type'] = 'application/xhtml+xml' unless @env['HTTP_USER_AGENT'] =~ /Microsoft/
     self << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
     self << "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
     tag!(:head) do
@@ -143,35 +142,8 @@ module UserInterface::Views
       script :src => "#{ui_root}/script.js"
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
     end
-    return ''
-#     regularContainer do
-#       div.bar.top do
-#         div.lefted { button('Leave', :left, :href => R(LeaveRoom, @room), :id => 'leave') }
-#         div.centered { barTitle(@settings['title']) }
-#         div.righted { button('Settings', :href => R(RoomSettings, @room)) } if user_owns_room?(@room)
-#       end
-#       
-#       div.scroll.shortScroll do
-#         div.wrap do
-#           div.messages! {}
-#           
-#           div.sidebar do
-#             sidebarBoxy(:id => 'userlist') { }
-#           end
-#         end
-#       end
-#       
-#       div.inputBox do
-#         input :id => 'message', :type => 'text', :maxlength => '2500'
-#         div.smilies! do
-#           div.menu.smiliesSelector! do
-#             div.body {}
-#             div.footer {}
-#           end
-#         end
-#         button 'Send', :id => 'sendMessage'
-#       end
-#     end
+    
+    ''
   end
   
   def room_gone
@@ -240,6 +212,16 @@ module UserInterface::Views
           
           dt 'Description:'
           dd { textarea.desc! @settings['desc'] }
+          
+          dt 'Room Interface:'
+          dd do
+            select.interface! do
+              Dir.foreach('UIs') do |ui|
+                next if ui.match(/^\./)
+                option(ui.capitalize, (@settings['interface'] || 'chatie') == ui ? {:value => ui, :selected => 'yes'} : {:value => ui})
+              end
+            end
+          end
           
           dt 'Icon:'
           dd do

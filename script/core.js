@@ -214,6 +214,8 @@ var Users = {
     }
   },
   
+  me: function() { return lookup(window.openid); },
+  
   refreshList: function() {
     var userlist = $$('#userlist .body')[0];
     userlist.empty();

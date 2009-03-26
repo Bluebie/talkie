@@ -120,7 +120,7 @@ class StreamController
       @sent_anything = true
     end
     
-    def send_user(hash, id = nil)
+    def send_user(room, hash, id = nil)
       hash ||= userhash(id)
       unless @users_infoed.include?(hash)
         userdir(id) if id unless File.exist?("users/#{hash}")
@@ -129,15 +129,20 @@ class StreamController
         userinfo['hasAvatar'] = File.exist?("users/#{hash}/avatar-16.png")
         userinfo['userDir'] = "/users/#{hash}"
         userinfo['updated'] = File.mtime("users/#{hash}/profile").to_i
+        
+        state_data = flock_read("rooms/#{room}/active-members/#{hash}") rescue '{}'
+        state_data = '{}' if state_data.to_s.empty?
+        userinfo['state'] = JSON.parse(state_data)
+        
         @users_infoed << hash
         send '{"type":"application/x-talkie-user-info","body":[' + JSON.generate(userinfo) + ']}'
       end
     end
     
     def send_active_users(room)
-      user_infos = Dir.entries("rooms/#{room[:name]}/active-members").reject { |h| h.include?('.') }.map { |h|
-        send_user(h, false)
-        IO.read("users/#{h}/openid")
+      user_infos = Dir.entries("rooms/#{room[:name]}/active-members").reject { |h| h.include?('.') }.map { |hash|
+        send_user(room, hash)
+        IO.read("users/#{hash}/openid")
       }
       
       if room[:settings]['bot'] and room[:settings]['bot']['enabled']
@@ -145,6 +150,12 @@ class StreamController
         user_infos.push(room[:settings]['bot']['url'])
       end
       send '{"type":"application/x-talkie-active-users","body":' + JSON.generate(user_infos) + ',"room":"' + room[:name] + '"}'
+    end
+    
+    def send_global_state(room)
+      data = flock_read("rooms/#{room[:name]}/state").to_s rescue '{}'
+      data = '{}' if data.empty?
+      send '{"type":"application/x-talkie-room-state","body":' + data + ',"room":"' + room[:name] + '"}'
     end
     
     
@@ -168,7 +179,9 @@ class StreamController
               message.merge! 'id' => room[:position], 'room' => room[:name]
               
               # TODO: Only do this when user profile has changed since the user last received 
-              send_user(nil, message['from']) if message['from']
+              if !room[:raw_position] || room[:raw_position] == 'null' || File.mtime("users/#{userhash(message['from'])}/profile").to_i >= message['timestamp']
+                send_user(nil, nil, message['from']) if message['from']
+              end
               
               send JSON.generate(message)
               room[:position] += 1
@@ -180,11 +193,14 @@ class StreamController
         monies = 0 if @req['poll'] == 'instant'
         
         monies -= 1
-        sleep 1.0 / 3.0 if monies > 0
+        sleep 1.0 / 3.0 if monies > 0 # / <- to fix syntax highlighting regexp bug in Espresso
       end
       
       @rooms.values.each do |room|
-        send_active_users(room) if !room[:raw_position] || room[:raw_position] == 'null'
+        if !room[:raw_position] || room[:raw_position] == 'null'
+          send_active_users(room)
+          send_global_state(room)
+        end
       end
       
       blk["]"] if @mode == 'array'

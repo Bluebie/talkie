@@ -97,13 +97,6 @@ var MessageHandlers = {
   'text/x-talkie-action': function(message) {
     Messages.append('action' + highlightClassMaybe(message), message);
   },
-  'text/x-debug': function(message) {
-    if (!stream.initialLoadDone) return;
-    if (window.console) {
-      console.log(Users.lookup(message.from).name + ': ');
-      console.log(message.body);
-    }
-  },
   'application/x-talkie-user-enters': function(message) {
     if (stream.initialLoadDone) {
       Users.active.push(message.from);
@@ -195,7 +188,7 @@ window.addEvent('domready', function() {
   window.stream.addEvent('message', function(message) {
     if (message.id && message.id > (this.streamParams.positions == 'null' ? 0 : this.streamParams.positions)) this.streamParams.positions = message.id;
     if ($('message-' + message.id)) return;
-    MessageHandlers[message.type].run(message, this);
+    (MessageHandlers[message.type] || $empty).run(message, this);
   });
   
   window.stream.addEvent('streamlost', function() {

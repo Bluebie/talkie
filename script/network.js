@@ -42,11 +42,16 @@ var StreamConnection = new Class({
     
     obj.each(function(msg) {
       this.fireEvent('message', msg);
+      this.fireEvent(msg.type, msg);
+      this.fireEvent(msg.type.split('/')[1].replace(/-/g, ''), msg);
     }.bind(this));
     
     // we have a longer delay after joining to get browsers to display the page as done loading
     this.restartTimer = this.start.delay(this.initialLoadDone ? 50 : 555, this);
-    this.initialLoadDone = true;
+    if (this.initialLoadDone != true) {
+      this.initialLoadDone = true;
+      this.fireEvent('initialloaddone', this);
+    }
   },
   
   onFailure: function() {
@@ -84,8 +89,13 @@ var XHRStream = new Class({
   },
   
   onSuccess: function(text) {
-    var messages = text.split(/\n/).map(function(msg) { return JSON.decode(msg, true) });
-    messages.erase(null);
+    if (this.streamParams.mode == 'lines') {
+      var messages = text.split(/\n/).map(function(msg) { return JSON.decode(msg, true) });
+      messages.erase(null);
+    } else if (this.streamParams.mode == 'array') {
+      var messages = JSON.decode(text, true);
+    }
+    
     this.parent(messages);
   },
   
@@ -133,3 +143,25 @@ var JSONStream = new Class({
     this.timeout = this.onFailure.delay(55000);
   }
 });
+
+// GlobalState contains a room object which everyone can contribute to.
+// This should be used in games and the likes to store a game board, though there is the issue of collision,
+// So for this reason, it's best only used in turn based games. Careful use of the merge functions can hopefully
+// avoid collisions all together, but the safest solution in live games is to simply have each user store their
+// part of the game in their own individual state (lookupable via the Users object
+GlobalState = {};
+GlobalServerState = {};
+
+function setupStream() {
+  window.stream = new XHRStream('/stream', {rooms: window.room, positions: 'null', mode: 'array', identity: window.openid});
+  
+  stream.addEvent('application/x-talkie-room-state', function(message) {
+    window.GlobalState = window.GlobalServerState = message.body;
+  });
+  
+  stream.addEvent('text/x-debug', function(message) {
+    if (!window.stream.initialLoadDone) return;
+    if (window.console) console.log(message.body);
+  });
+};
+
