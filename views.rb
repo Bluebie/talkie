@@ -2,6 +2,7 @@ module UserInterface::Views
 
   def layout
     @auto_validation = false
+    @headers['Content-Type'] = 'application/xhtml+xml' if @input['xmlhdr']
     self << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
     self << "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\">"
     tag!(:head) do
@@ -67,7 +68,7 @@ module UserInterface::Views
   
   def home
     @headstuff = proc do
-      load_scripts 'home.js', 'swiff.uploader.js'
+      load_scripts 'home.js' #, 'swiff.uploader.js'
       script "var userDir = '/#{userdir}';"
     end
     
@@ -135,7 +136,6 @@ module UserInterface::Views
   
   def chat
     @headstuff = proc do
-      #load_scripts 'chat.js'
       ui_root = "#{@root}/UIs/#{@settings['interface'] || 'chatie'}"
       link :href => "#{ui_root}/styles.css", :rel => 'stylesheet'
       script "window.ui_root = #{JSON.generate(ui_root + '/')};"
@@ -190,7 +190,7 @@ module UserInterface::Views
   
   def room_settings
     @headstuff = proc do
-      load_scripts 'swiff.uploader.js', 'settings.js'
+      load_scripts 'settings.js' # 'swiff.uploader.js'
       script "window.room = #{JSON.generate(@room)};"
     end
     

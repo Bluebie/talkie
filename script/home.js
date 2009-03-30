@@ -14,38 +14,14 @@ window.addEvent('domready', function () {
     });
   });
   
-  window.userPicSwiff = new Swiff.Uploader({
-    multiple: false, queued: false, fieldName: 'upload', url: '/alter-avatar/user/upload', target: 'uploadAvatar',
-    data: {'camping_blob': Cookie.read('camping_blob'), 'camping_hash': Cookie.read('camping_hash')},
-    typeFilter: {'Web Images (*.png, *.jpeg, *.gif)': '*.jpg;*.jpeg;*.png;*.gif'},
-    path: '/script/swiff.uploader.swf'
-  });
-  
-  // stupidness for Flash 10
-  /*
-  userPicSwiff.toElement().setStyle('display', 'none');
-  $$('#userAv .menu')[0].addEvents({
-    menuhidden: function() { userPicSwiff.toElement().getParent().setStyle('display', 'none'); },
-    menushown: function() { userPicSwiff.toElement().getParent().setStyle('display', ''); }
-  });
-*/
-  
-  // TODO add logic for uploading
   $('uploadAvatar').addEvent('click', function() {
-    setPie($$('#userAv .pie')[0], 0);
-    userPicSwiff.browse();
+    alert("Not implemented yet. Upload a 'pavatar' to your website and use it as an openid as a work around for now. :)");
+    // TODO: Open some kind of popup to upload picture with
   });
   
-  userPicSwiff.addEvent('select', function(file) { userPicSwiff.upload(); });
-
-  userPicSwiff.addEvent('progress', function(file, current, overall) {
-    $('userAvImg').setStyle('visibility', 'hidden');
-    setPie($$('#userAv .pie')[0], current.bytesLoaded / current.bytesTotal);
-  });
-  
-  userPicSwiff.addEvent('complete', function(file, response) {
+  /*userPicSwiff.addEvent('complete', function(file, response) {
     (new Element('img', {src: userDir+'/avatar-80.png?'+(Math.random() * 10000).toInt(), id: 'userAvImg'})).replaces('userAvImg');
-  });
+  });*/
   
   // remove avatar thingy
   $('removeAvatar').addEvent('click', function() {

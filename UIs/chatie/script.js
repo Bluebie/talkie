@@ -49,7 +49,7 @@ var Messages = {
     if (doScroll) scrolly.scrollTo(0, scrolly.getScrollSize().y - scrolly.getSize().y);
     
     // update message count in the title bar
-    if (!window.focused) {
+    if (window.stream && window.stream.initialLoadDone) {
       window.unreadNum = (window.unreadNum || 0) + 1;
       document.title = '#' + unreadNum + ' messages — ' + window.oldTitle;
       if (window.fluid) window.fluid.dockBadge = unreadNum;
@@ -379,14 +379,24 @@ window.addEvent('load', function() {
 });
 
 
-window.addEvent('focus', function() {
-  window.focused = true;
+focused = function() {
+/*   window.focused = true; */
   document.title = window.oldTitle;
+  window.unreadNum = 0;
   if (window.fluid) window.fluid.dockBadge = null;
   $('message').focus();
-});
+};
 
+$(document).addEvent('mousemove', focused);
+$(document).addEvent('keydown', focused);
+$(document).addEvent('focus', focused);
+$(window).addEvent('mousemove', focused);
+$(window).addEvent('keydown', focused);
+$(window).addEvent('focus', focused);
+
+/*
 window.addEvent('blur', function() {
   window.unreadNum = 0;
   window.focused = false;
 });
+*/

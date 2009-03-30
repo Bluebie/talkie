@@ -72,6 +72,7 @@ var StreamConnection = new Class({
 // Firefox and IE8 have raised this limit to 8 as a temporary measure.
 var XHRStream = new Class({
   Extends: StreamConnection,
+  Binds: ['onSuccess', '_stop', '_start'],
   
   initialize: function(endpoint, params) {
     this.parent(endpoint, params);
@@ -108,7 +109,7 @@ var XHRStream = new Class({
 // NOTE: This is still buggy, not recommended for real world use yet.
 var JSONStream = new Class({
   Extends: StreamConnection,
-  Binds: ['onSuccess'],
+  Binds: ['onSuccess', '_stop', '_start'],
   
   initialize: function(endpoint, params) {
     this.parent(endpoint, params);

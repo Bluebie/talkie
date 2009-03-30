@@ -135,6 +135,7 @@ div.profile .bigAvatarEdit { margin: 0 5px; }
 .bigAvatarEdit .pie img { position: static; }
 div.profile #name { text-align: center; margin: 0 80px 0 120px; font-size: 15px; margin-bottom: 5px; }
 div.profile #desc { display: block; width: 491px; height: 50px; line-height: 1.4; margin: 0 10px 0 95px; resize: none; font-family: inherit; font-size: 9pt; }
+.presto div.profile #desc { margin-left: 5px; } /* opera's weird */
 
 .bigAvatarEdit .menu { position: absolute; width: 98px; height: 38px; background-image: url("avatar-popup.png"); padding: 7px; margin-top: 80px; z-index: 1000;}
 .bigAvatarEdit .menu span { display: block; margin-bottom: 4px; }
@@ -147,7 +148,7 @@ div.rooms { padding-bottom: 10px; overflow: hidden; }
 a.roomButton .title { font-family: 'Complete in Him'; font-size: 20px; text-align: center; padding-bottom: 9px; }
 a.roomButton p { line-height: 1.35; margin-top: -5px; height: 55px; overflow: hidden; }
 a.roomButton .ender, .profile .ender { height: 5px; }
-a.little_av { margin: 5px; color: #192B33; display: block; white-space: nowrap; float: left; width: 110px; overflow: hidden; margin-left: 10px; margin-top: 10px; text-decoration: none; }
+a.little_av { margin: 5px; color: #192B33; display: block; white-space: nowrap; float: left; width: 150px; overflow: hidden; margin-left: 10px; margin-top: 10px; text-decoration: none; }
 a.little_av:hover span { text-decoration: underline; }
 div.rooms a.dead { opacity: 0.5; }
 
@@ -164,7 +165,7 @@ div.rooms a.dead { opacity: 0.5; }
 .boxy .body .user { margin: 5px 0; color: #192B33; display: block; white-space: nowrap; cursor: default; }
 
 /* favicon widget styling */
-.favatar { display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -3px; background-color: white; }
+.favatar { display: inline-block; width: 16px; height: 16px; margin-right: 10px; vertical-align: -3px; background-color: white; border-width: 0; }
 
 /* the create room page */
 .bigBlock { background-color: #CCCC52; width: 600px; margin: 20px; }
