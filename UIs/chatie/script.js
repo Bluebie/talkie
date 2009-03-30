@@ -204,13 +204,6 @@ window.addEvent('domready', function() {
     });
   });
   
-  if (settings.background && settings.background.enabled) {
-    var spacer = $(document.html);
-    if (settings.background.url.toString().length > 0) spacer.setStyle('background-image', 'url("'+settings.background.url+'")');
-    spacer.setStyle('background-color', settings.background.colour);
-    spacer.setStyle('background-repeat', settings.background.repeat ? 'repeat' : 'no-repeat');
-    spacer.setStyle('background-position', 'center center');
-  }
   
   window.oldTitle = document.title;
   
@@ -222,10 +215,8 @@ window.addEvent('domready', function() {
     if (text == '') return;
     
     // support actions
-    var actionTest = /^(;|:|\/me )/;
-    var startSmile = (window.smilies)?smilies.sensor.exec(text):false;
-    if (startSmile) startSmile = (startSmile.index == 0);
-    if (text.test(actionTest) && !startSmile) {
+    var actionTest = /^(; |: |\/me )/;
+    if (text.test(actionTest)) {
       mimetype = 'text/x-talkie-action';
       text = text.replace(actionTest, '');
     }
@@ -320,8 +311,8 @@ window.addEvent('domready', function() {
   
   
   // work around firefox braindeadly killing the stream then letting javascript reconnect it.
-  window.addEvents({'beforeunload': stream.stop, 'unload': stream.stop});
-  $('leave').addEvent('click', stream.stop);
+  window.addEvents({'beforeunload': stream.stop.bind(stream), 'unload': stream.stop.bind(stream)});
+  $('leave').addEvent('click', stream.stop.bind(stream));
   
   
   // set up the smilies selector
@@ -364,6 +355,14 @@ window.addEvent('domready', function() {
 
 window.addEvent('load', function() {
   window.stream.start.delay(50, window.stream);
+  
+  if (settings.background && settings.background.enabled) {
+    var spacer = $(document.html);
+    if (settings.background.url.toString().length > 0) spacer.setStyle('background-image', 'url("'+settings.background.url+'")');
+    spacer.setStyle('background-color', settings.background.colour);
+    spacer.setStyle('background-repeat', settings.background.repeat ? 'repeat' : 'no-repeat');
+    spacer.setStyle('background-position', 'center center');
+  }
   
   window.watchdogTimeout = 60; // seconds
   window.watchdog = function() {

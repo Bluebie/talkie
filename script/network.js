@@ -50,7 +50,7 @@ var StreamConnection = new Class({
     this.restartTimer = this.start.delay(this.initialLoadDone ? 50 : 555, this);
     if (this.initialLoadDone != true) {
       this.initialLoadDone = true;
-      this.fireEvent('initialloaddone', this);
+      this.fireEvent('initialLoadDone', this);
     }
   },
   

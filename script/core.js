@@ -201,7 +201,7 @@ var Users = {
   profiles: {}, active: [],
   
   lookup: function(openid) {
-    return (Users.profiles[openid] || {name: 'Unknown User', desc: 'No Description'});
+    return (Users.profiles[openid] || {name: 'Unknown User', desc: 'No Description', hasAvatar: false, userDir: '../../default/user', updated: 0});
   },
   
   loadProfile: function(userinfo) {
