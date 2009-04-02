@@ -59,9 +59,9 @@ window.addEvent('load', function() {
     
     openid = openid.substitute({ 'openid': $('openid').value, 'username': $('username').value });
     
-    Cookie.write('idp-template', option.value, {duration: 360});
-    Cookie.write('idp-openid', $('openid').value, {duration: 360});
-    Cookie.write('idp-username', $('username').value, {duration: 360});
+    Cookie.write('idp-template', option.value, {duration: 360, path: '/'});
+    Cookie.write('idp-openid', $('openid').value, {duration: 360, path: '/'});
+    Cookie.write('idp-username', $('username').value, {duration: 360, path: '/'});
     
     window.location.href = '/openid?identity=' + encodeURIComponent(openid);
   });
@@ -69,12 +69,5 @@ window.addEvent('load', function() {
   window.addEvent('keypress', function(event) {
     if (event.key == 'enter') $('login').fireEvent('click');
   });
-  
-/*
-  var loginError = Cookie.read('login_error');
-  if (!loginError) $('loginError').setStyle('display', 'none');
-  if (loginError)  $('loginError').set('text', loginError.replace(/\+/g, ' '));
-  Cookie.dispose('login_error');
-*/
 });
 

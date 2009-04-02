@@ -5,6 +5,19 @@ file_handler = Rack::File.new('.')
 
 apps = Array.new
 
+# redirect www. requests
+apps << lambda do |env|
+  request = Rack::Request.new(env)
+  url = URI.parse(request.url)
+  if url.host.match(/^www\./)
+    url.host = url.host.sub(/^www\./, '')
+    [301, {'Location' => url.to_s}, ['']]
+  else
+    [404, {}, ['']]
+  end
+end
+
+
 apps << lambda do |env|
   begin
     mtime = File.mtime(env['PATH_INFO'].sub(/\//, ''))
