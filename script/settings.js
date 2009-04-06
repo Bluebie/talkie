@@ -1,6 +1,6 @@
 window.addEvent('domready', function () {
   $('uploadAvatar').addEvent('click', function() {
-    uploadWindow('room', {room: window.room}, function(dom) {
+    uploadWindow('room', {room: window.room, formats: 'any image, though jpeg, png, gif are safest', maxSize: 5000000}, function(dom) {
       (new Element('img', {src: urlroot + '/rooms/' + room + '/avatar-80.png?' + (Math.random() * 10000).toInt(), id: 'roomAvImg'})).replaces('roomAvImg');
     });
   });
@@ -8,7 +8,7 @@ window.addEvent('domready', function () {
   // remove avatar thingy
   $('removeAvatar').addEvent('click', function() {
     (new Request({
-      url: '/alter-avatar/room/remove', link: 'cancel', data: {'room': room},
+      url: '/alter-avatar/room/remove', link: 'cancel', data: {room: room},
       onSuccess: function() {
         (new Element('img', {src: '/default/room/avatar-80.png', id: 'roomAvImg'})).replaces('roomAvImg');
       }

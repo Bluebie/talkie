@@ -2,7 +2,6 @@
 * { margin: 0; padding: 0; }
 html { background-color: #8FB359; font-family: Helvetica, Ariel, sans-serif; font-size: 13px; min-height: 100%; }
 .title, .button { user-select: none; -webkit-user-select: none; -moz-user-select: none; }
-/* #spacer { height: 712px; } */
 
 /* Container Windows */
 body { min-height: 525px; }
@@ -178,4 +177,13 @@ div.rooms a.dead { opacity: 0.5; }
 #settingsForm .gap { padding: 1em 0 1em 0; }
 #settingsForm .colour { width: 8ex; }
 #settingsForm .url { width: 250px; }
+
+
+/* stylings for the frames */
+html.frame { background-color: transparent; }
+html.frame body { min-height: 0; }
+html.frame p { margin: 1em;	text-align: center; }
+html.frame form div {	display: block; width: 400px; text-align: center; margin-left: auto; margin-right: auto; margin-bottom: 1em; }
+html.frame form input { width: 395px; display: block; margin-bottom: 1em; }
+
 

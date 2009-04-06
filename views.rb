@@ -9,7 +9,7 @@ module UserInterface::Views
       meta :charset => 'utf-8'
       title (@title && @title != AppName) ? "#{@title} — #{AppName}" : AppName
       meta :name => 'viewport', :content => 'width=666; maximum-scale=1.0;'
-      link :rel => 'stylesheet', :href => "#{@root}/style/sheet.css?last-modified=#{File.mtime('style/sheet.css').to_i}"
+      link :id => 'styles', :rel => 'stylesheet', :href => "#{@root}/style/sheet.css?last-modified=#{File.mtime('style/sheet.css').to_i}"
       #load_scripts 'mootools-1.2.1-core-yc.js', 'mootools-1.2.1-more-rc01-multi-more.js', 'core.js', 'cufon-yui.js', 'Complete_in_Him_400.font.js'
       script :src => "#{@root}/script/compiled?last-modified=#{File.mtime('script').to_i}"
       script do
@@ -85,7 +85,6 @@ module UserInterface::Views
           img.ender :src => "#{@root}/style/user-profile-top.png"
           
           a.bigAvatarEdit.userAv! do
-            div.pie { img :src => "#{@root}/style/progress-pie.png" }
             if File.exist?("#{userdir}/avatar-80.png")
               time = File.mtime("#{userdir}/avatar-80.png")
               img :src => "#{@root}/#{userdir}/avatar-80.png?#{time.to_i}", :id => 'userAvImg'
@@ -142,6 +141,7 @@ module UserInterface::Views
       script "window.ui_root = #{JSON.generate(ui_root + '/')};"
       script :src => "#{ui_root}/script.js"
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
+      link :rel => 'short_url', :href => R(ShortURL, @room)
     end
     
     ''
@@ -191,7 +191,7 @@ module UserInterface::Views
   
   def room_settings
     @headstuff = proc do
-      load_scripts 'settings.js' # 'swiff.uploader.js'
+      load_scripts 'settings.js'
       script "window.room = #{JSON.generate(@room)};"
     end
     
@@ -227,7 +227,6 @@ module UserInterface::Views
           dt 'Icon:'
           dd do
             a.bigAvatarEdit.roomAv! do
-              div.pie { img :src => "#{@root}/style/progress-pie.png" }
               time = File.mtime(room_or_default(@room, 'avatar-80.png'))
               img :src => "#{@root}/#{room_or_default(@room, 'avatar-80.png')}?#{time.to_i}", :id => 'roomAvImg'
               img :src => "#{@root}/style/icon-hover-overlay.png", :class => 'overlay'

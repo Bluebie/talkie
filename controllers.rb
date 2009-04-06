@@ -151,7 +151,7 @@ module UserInterface::Controllers
         File.open("#{dir}/avatar-original", 'w') { |w| w.write(input.upload[:tempfile].read) }
         import_avatar(dir, "#{dir}/avatar-original")
         alter_json("#{dir}/profile") { |profile| profile['user-uploaded-avatar'] = true } if kind == 'user'
-        return '{"result":"success"}'
+        return 'Success!'
       end
     end
   end
