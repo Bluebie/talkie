@@ -4,7 +4,7 @@ var UI = {
   container: function(type, opts) {
     type = type || 'regular';
     var cont = new Element('div', Hash.combine({'class': type + 'Container container'}, opts || {}));
-    var body = new Element('div', {'class': type + 'Body'});
+    var body = new Element('div', {'class': type + 'Body body'});
     var foot = new Element('div', {'class': 'footer'});
     cont.adopt(body); cont.adopt(foot);
     recenter.delay(50);
@@ -31,7 +31,7 @@ var UI = {
     var div = new Element('div', {'class': 'title'});
     var subdiv = new Element('div', {'class': 'text', 'text': text});
     div.adopt(subdiv);
-    if (Cufon) Cufon.replace(subdiv);
+    if (Cufon) UI.finishTasks.push(function() { Cufon.replace(subdiv); });
     return div;
   },
   
@@ -60,5 +60,13 @@ var UI = {
     var scroll = new Element('div', {'class': 'scroll'});
     if (short) scroll.addClass('shortScroll');
     return scroll;
-  }
+  },
+  
+  // should be called after any block of usage of UI to do any stuff that has to happen after things enter the dom
+  finish: function() {
+    UI.finishTasks.each(function(func) { func.run(); });
+    UI.finishTasks = [];
+  },
+  
+  finishTasks: []
 }

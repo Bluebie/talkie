@@ -14,6 +14,7 @@ module UserInterface::Views
       script :src => "#{@root}/script/compiled?last-modified=#{File.mtime('script').to_i}"
       script do
         text "Cufon.replace('.text');"
+        text "soundManager.url = '#{@root}/script/soundmanager/swf/';"
         text "window.urlroot = #{JSON.generate(@root)};"
         text "window.room = #{JSON.generate(@room)};" if @room
         text "window.settings = #{JSON.generate(@settings)};" if @settings
@@ -306,9 +307,8 @@ module UserInterface::Views
     end
   end
   
-  def regularContainer(classy = 'regularBody', &content)
-    div.regularContainer { div(:class => classy,&content); div.footer {} }
-    div.spacer! {}
+  def regularContainer(classy = 'regularBody body', &content)
+    div.regularContainer.container { div(:class => classy, &content); div.footer {} }
   end
   
   def barTitle(text)

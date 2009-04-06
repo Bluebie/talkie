@@ -23,7 +23,7 @@ apps << lambda do |env|
     mtime = File.mtime(env['PATH_INFO'].sub(/\//, ''))
     if !env['HTTP_IF_MODIFIED_SINCE'] || mtime > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
       r = file_handler.call(env)
-      r[1]['Expires'] = (Time.now + 60*60*24).httpdate if env['PATH_INFO'] =~ /(script|style|default|users|rooms|sounds)/
+      r[1]['Expires'] = (Time.now + 60*60*24).httpdate if env['PATH_INFO'] =~ /(script|style|default|users|rooms|sounds|\.png|\.jpeg)/
       #r[1]['X-Awesome-Concept'] = 'Telepathy'
       r
     else
@@ -55,6 +55,7 @@ apps << Rack::Builder.new do
         'mootools-1.2.1-more-rc01-multi-more.js',
         'cufon-yui.js',
         'Complete_in_Him_400.font.js',
+        'soundmanager/script/soundmanager2-nodebug-jsmin.js',
         'ui.js',
         'network.js',
         'core.js'

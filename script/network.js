@@ -153,16 +153,55 @@ var JSONStream = new Class({
 GlobalState = {};
 GlobalServerState = {};
 
-function setupStream() {
-  window.stream = new XHRStream('/stream', {rooms: window.room, positions: 'null', mode: 'array', identity: window.openid});
+var Network = {
+  stream: null,
   
-  stream.addEvent('application/x-talkie-room-state', function(message) {
-    window.GlobalState = window.GlobalServerState = message.body;
-  });
+  // get the stream object ready for use, so event handlers can be added and stuff
+  setup: function() {
+    Network.stream = new XHRStream('/stream', {rooms: window.room, positions: 'null', mode: 'array', identity: window.openid});
+    
+    Network.stream.addEvents({
+      'application/x-talkie-room-state': function(message) {
+        window.GlobalState = window.GlobalServerState = message.body;
+      },
+      
+      'text/x-debug': function(message) {
+        if (!this.initialLoadDone) return;
+        if (window.console) console.log(message.body);
+      },
+      
+      'message': function(message) {
+        if (message.id && message.id > (this.streamParams.positions == 'null' ? 0 : this.streamParams.positions)) {
+          this.streamParams.positions = message.id;
+        }
+      }
+    });
+  },
   
-  stream.addEvent('text/x-debug', function(message) {
-    if (!window.stream.initialLoadDone) return;
-    if (window.console) console.log(message.body);
-  });
-};
+  // Start the stream
+  begin: function() {
+    Network.stream.start.delay(50, Network.stream);
+    
+    // Setup the watchdog timer so that the stream will recover if the computer sleeps and stuff
+    Network.watchdogTimeout = 60; // seconds
+    Network.watchdogTimer = Network.watchdog.periodical(2500);
+    window.addEvents('focus', Network.watchdog);
+  },
+  
+  watchdog: function() {
+    var now = new Date();
+    if (Network.stream.lastLoadTimestamp == null || Network.stream.lastLoadTimestamp.getTime() < (now.getTime() - (Network.watchdogTimeout * 1000))) {
+      Network.stream.stop();
+      Network.stream.onFailure();
+      Network.stream.start();
+    }
+  },
+  
+  send: function(message, params, onSuccess, onFailure) {
+    var req = new Request({ url: '/rooms/' + window.room + '/send', onFailure: onFailure, onSuccess: onSuccess});
+    req.xhr.onerror = function() { req.failure(); };
+    req.xhr.onabort = function() { req.failure(); };
+    req.send({data: Hash.combine({message: JSON.encode(message)}, params || {})});
+  }
+}
 

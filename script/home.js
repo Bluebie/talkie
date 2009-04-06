@@ -15,13 +15,10 @@ window.addEvent('domready', function () {
   });
   
   $('uploadAvatar').addEvent('click', function() {
-    alert("Not implemented yet. Upload a 'pavatar' to your website and use it as an openid as a work around for now. :)");
-    // TODO: Open some kind of popup to upload picture with
+    uploadWindow('user', {}, function(dom) {
+      (new Element('img', {src: userDir+'/avatar-80.png?'+(Math.random() * 10000).toInt(), id: 'userAvImg'})).replaces('userAvImg');
+    });
   });
-  
-  /*userPicSwiff.addEvent('complete', function(file, response) {
-    (new Element('img', {src: userDir+'/avatar-80.png?'+(Math.random() * 10000).toInt(), id: 'userAvImg'})).replaces('userAvImg');
-  });*/
   
   // remove avatar thingy
   $('removeAvatar').addEvent('click', function() {

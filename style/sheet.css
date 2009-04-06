@@ -6,19 +6,15 @@ html { background-color: #8FB359; font-family: Helvetica, Ariel, sans-serif; fon
 
 /* Container Windows */
 body { min-height: 525px; }
-.regularContainer {
+body .container {
   position: absolute;
   background: url(regular-container.png) 0 0;
   width: 640px;
-  left: 50%;
-  top: 50%;
-  margin-top: -262px;/*80px*/
-  margin-left: -333px;
   padding: 13px; padding-bottom: 0;
   z-index: 100;
 }
 
-.regularContainer .footer {
+body .container .footer {
   background: url(regular-container.png) left bottom;
   background-repeat: no-repeat;
   position: absolute;
@@ -27,7 +23,11 @@ body { min-height: 525px; }
   margin-left: -13px;
 }
 
-.regularBody { height: 498px; }
+body .regularContainer { top: 50%; left: 50%; margin-top: -262px; margin-left: -333px; }
+body .regularContainer .regularBody { height: 498px; }
+
+body .halfHeightContainer { top: 50%; left: 50%; margin-top: -131px; margin-left: -333px; }
+body .halfHeightContainer .halfHeightBody { height: 249px; }
 
 .scroll {
   height: 470px;

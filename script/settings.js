@@ -1,13 +1,9 @@
 window.addEvent('domready', function () {
   $('uploadAvatar').addEvent('click', function() {
-    // TODO: Open uploady thing
+    uploadWindow('room', {room: window.room}, function(dom) {
+      (new Element('img', {src: urlroot + '/rooms/' + room + '/avatar-80.png?' + (Math.random() * 10000).toInt(), id: 'roomAvImg'})).replaces('roomAvImg');
+    });
   });
-  
-/*
-  roomPicSwiff.addEvent('complete', function(file, response) {
-    (new Element('img', {src: '/rooms/' + room + '/avatar-80.png?'+(Math.random() * 10000).toInt(), id: 'roomAvImg'})).replaces('roomAvImg');
-  });
-*/
   
   // remove avatar thingy
   $('removeAvatar').addEvent('click', function() {

@@ -244,11 +244,50 @@ var Users = {
 }
 
 
+function uploadWindow(kind, params, complete) {
+  var container = UI.container('halfHeight');
+  $(document.body).adopt(container);
+  var body = container.getFirst();
+  body.adopt(UI.bar('top').adopt(UI.centered().adopt(UI.title('Avatar Upload')), UI.lefted().adopt(UI.button('Close', 'left', {events: { click: function() { container.destroy(); }}}))));
+  
+  var iframe = new Element('iframe', {width: '640', height: '221', frameborder: '0'});
+  body.adopt(iframe);
+  var doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write("<!doctype html>\n");
+  doc.write("<html><head></head><body></body></html>");
+  doc.close();
+  
+  var els
+  $(doc.body).adopt(
+    (new Element('form', {method: 'post', enctype: 'multipart/form-data', action: '/alter-avatar/' + kind + '/upload'})).adopt(
+      els = (new Element('div')).adopt(
+        new Element('input', {'type': 'file', name: 'upload'}),
+        new Element('input', {'type': 'submit', value: 'Send Picture'})
+      )
+    )
+  );
+  
+  Hash.each(params, function(val, key) {
+    els.adopt(new Element('input', {'type': 'hidden', name: key, value: val}));
+  });
+  
+  (function() {
+    iframe.addEvent('load', function() {
+      if (complete) complete(doc);
+      container.destroy();
+    });
+  }).delay(100);
+  
+  UI.finish();
+}
+
+
 
 // keep the thingy centered
 function recenter() {
   var sides = {'x': 'left', 'y': 'top'};
-  $$('.regularContainer').each(function(container) {
+  $$('.container').each(function(container) {
     Hash.each(sides, function(edge, dim) {
       if (window.getSize()[dim] <= container.getSize()[dim] + (dim == 'y' ? container.getLast().getSize()[dim] : 3)) {
         container.setStyle(edge, '0'); container.setStyle('margin-' + edge, '0');
@@ -258,5 +297,8 @@ function recenter() {
     });
   });
 }
-if (Browser.Platform != 'ipod') window.addEvents({load: recenter, resize: recenter});
+
+if (Browser.Platform != 'ipod') {
+  window.addEvents({load: recenter, resize: recenter});
+}
 

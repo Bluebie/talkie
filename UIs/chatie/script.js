@@ -49,7 +49,7 @@ var Messages = {
     if (doScroll) scrolly.scrollTo(0, scrolly.getScrollSize().y - scrolly.getSize().y);
     
     // update message count in the title bar
-    if (window.stream && window.stream.initialLoadDone) {
+    if (window.stream && window.stream.initialLoadDone && message.from != window.openid) {
       window.unreadNum = (window.unreadNum || 0) + 1;
       document.title = '#' + unreadNum + ' messages — ' + window.oldTitle;
       if (window.fluid) window.fluid.dockBadge = unreadNum;
@@ -180,6 +180,8 @@ window.addEvent('domready', function() {
   selector.adopt(new Element('div', {'class': 'footer'}));
   inputBox.adopt(UI.button('Send', 'square', {'id': 'sendMessage'}));
   
+  UI.finish();
+  
   
   
   //window.stream = new JSONStream(window.streamEndpoint || '/stream', {room: window.room, mode: 'lines', identity: window.openid});
@@ -254,7 +256,7 @@ window.addEvent('domready', function() {
       if (window.watchdog) window.watchdog();
     }
     
-    var req = new Request({ url: '/rooms/' + room + '/send', link: 'chain', onFailure: function() { failure(); }, onSuccess: success})
+    var req = new Request({ url: '/rooms/' + room + '/send', link: 'chain', onFailure: function() { failure(); }, onSuccess: success});
     req.xhr.onerror = function() { req.failure(); };
     req.send({data: {message: msgJson}});
     $('message').set('value', '').focus();
