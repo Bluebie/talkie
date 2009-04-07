@@ -136,12 +136,13 @@ module UserInterface::Views
   
   def chat
     @headstuff = proc do
-      ui_root = "#{@root}/UIs/#{@settings['interface'] || 'chatie'}"
-      link :href => "#{ui_root}/styles.css", :rel => 'stylesheet'
+      ui_name = @settings['interface'] || 'chatie'
+      ui_root = "#{@root}/UIs/#{ui_name}"
+      link :href => "#{ui_root}/styles.css?#{File.mtime("UIs/#{ui_name}/styles.css").to_i}", :rel => 'stylesheet'
       script "window.ui_root = #{JSON.generate(ui_root + '/')};"
-      script :src => "#{ui_root}/script.js"
+      script :src => "#{ui_root}/script.js?#{File.mtime("UIs/#{ui_name}/script.js").to_i}"
       link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
-      link :rel => 'short_url', :href => R(ShortURL, @room)
+      link :rel => 'short_url', :href => URL(ShortURL, @room).to_s
     end
     
     ''

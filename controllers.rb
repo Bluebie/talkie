@@ -151,7 +151,7 @@ module UserInterface::Controllers
         File.open("#{dir}/avatar-original", 'w') { |w| w.write(input.upload[:tempfile].read) }
         import_avatar(dir, "#{dir}/avatar-original")
         alter_json("#{dir}/profile") { |profile| profile['user-uploaded-avatar'] = true } if kind == 'user'
-        return 'Success!'
+        return '<!doctype html><html><head><script>window.name = "y";</script></head></html>'
       end
     end
   end
@@ -339,13 +339,14 @@ module UserInterface::Controllers
     def get(room)
       return "You do not own #{room}, cannot remove content" unless user_owns_room?(room)
       
-      msgid = send_message(room, 'type' => 'application/x-talkie-room-cleared', 'from' => @state.identity, 'body' => 'removed all previous messages.')
       f = File.open("rooms/#{room}/message-counter", 'r')
       f.flock(File::LOCK_EX)
       Dir.entries("rooms/#{room}").each do |file|
-        File.delete("rooms/#{room}/#{file}") unless $1.to_i >= msgid if file =~ /^message\-([0-9]+)$/
+        File.delete("rooms/#{room}/#{file}") if file =~ /^message\-([0-9]+)$/
       end
       f.close
+      
+      send_message(room, 'type' => 'application/x-talkie-room-cleared', 'from' => @state.identity, 'body' => 'removed all previous messages.')
       
       redirect Room, room
     end

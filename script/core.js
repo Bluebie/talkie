@@ -1,4 +1,5 @@
 function menuify(menu) {
+  menu = $(menu);
   menu.setStyle('visibility', 'hidden');
   
   var hide = function () { menu.setStyle('visibility', 'hidden'); menu.fireEvent('menuhidden'); }
@@ -15,6 +16,8 @@ function menuify(menu) {
     },
     mouseenter: function() { $clear(closer); }
   });
+  
+  return menu;
 }
 
 window.addEvent('domready', function () {

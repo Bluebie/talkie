@@ -1,6 +1,7 @@
 /* the sidebar */
 #userlist .top { margin-bottom: -5px; }
 #userlist .bottom { margin-top: -5px; }
+#sendfileboxy a.button b { font-weight: normal; width: 105px; text-align: center; display: inline-block; }
 
 /* smilies selector popup */
 #smiliesSelector { position: absolute; bottom: 25px; width: 114px; margin-left: -49px; z-index: 10000; cursor: default; }
@@ -12,8 +13,9 @@
 /* message log display */
 #messages { min-height: 442px; overflow: hidden; }
 .message { margin: 0.8em 0; color: #192B33; line-height: 1.4; -webkit-text-size-adjust: none; }
-.message .user { position: absolute; width: 450px; left: -300px; height: 1.5em; overflow: hidden; text-align: right; }
-.message .body { margin-left: 55px; text-indent: 100px; width: 390px; display: block; word-wrap: break-word; }
+.message .user { /*position: absolute;*/ float: left; width: 150px; /*width: 450px; left: -300px; height: 1.5em;*/ overflow: hidden; text-align: right; }
+span.invisiText { opacity: 0; }
+.message .body { /*margin-left: 55px; text-indent: 100px;*/ text-indent: 1em; width: 390px; display: block; word-wrap: break-word; }
 .message .body .smiley { vertical-align: middle; }
 #messages .highlight { background-color: #FFD933; padding: 1ex 0 1ex 0; }
 

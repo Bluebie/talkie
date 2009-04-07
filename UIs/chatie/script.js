@@ -9,7 +9,9 @@ var Messages = {
     messageElement.store('message-object', message);
     if (message.id) messageElement.set('id', 'message-' + message.id);
     
-    if (message.from) messageElement.adopt(Users.generateHTML(message.from));
+    if (message.from) messageElement.adopt(
+      Users.generateHTML(message.from).adopt(new Element('span', {'class': 'invisiText', text: ': '}))
+    );
     
     var messageBody = new Element('span', {'class': 'body', text: message.body.toString()});
     messageElement.adopt(messageBody);
@@ -146,39 +148,64 @@ window.addEvent('domready', function() {
   document.title = settings.title + ' — ' + document.title;
   
   //// Build the page
-  document.body.adopt(container = UI.container());
-  body = container.getFirst();
-  // the bar up top
-  body.adopt(bar = UI.bar('top'));
-  bar.adopt(centered = UI.centered());
-  centered.adopt(UI.title(window.settings.title));
-  bar.adopt(lefted = UI.lefted());
-  lefted.adopt(UI.button('Leave', 'left', { href: 'leave', 'id': 'leave' }));
-  if (settings.owners.contains(window.openid)) {
-    bar.adopt(righted = UI.righted());
-    righted.adopt(UI.button('Settings', 'square', { href: 'setup' }));
+  var container;
+  document.body.adopt(UI.container(null, null, [
+    // the bar up top
+    UI.bar('top').adopt(
+      UI.centered().adopt( UI.title(window.settings.title) ),
+      UI.lefted().adopt( UI.button('Leave', 'left', { href: 'leave', id: 'leave' }) ),
+      UI.righted().adopt(
+        UI.button(new Element('span', {text: 'Mute', id: 'muteText'}), 'square', { id: 'muteButton' }),
+        UI.button('Settings', 'square', { href: 'setup', id: 'settingsButton' })
+      )
+    ),
+    
+    UI.scrolly(true).adopt(
+      (new Element('div', {'class': 'wrap'})).adopt(
+        new Element('div', {'id': 'messages'}),
+        UI.sidebar().adopt(
+          UI.sidebarBoxy({'id': 'userlist'}),
+          UI.sidebarBoxy({'id': 'sendfileboxy'}, [ UI.button(null, null, {id: 'sendFileButton'}).adopt( new Element('b', {text: 'Send Creation'}) ) ])
+        )
+      )
+    ),
+    
+    (new Element('form', {'class': 'inputBox', events: {submit: function() { window.sendMessage(); return false; }}})).adopt(
+      new Element('input', {'id': 'message', 'type': 'text', 'maxlength': '2500', 'autocomplete': 'off'}),
+      (new Element('div', {'id': 'smilies'})).adopt(
+        new Element('div', {'id': 'smiliesSelector', 'class': 'menu'}).adopt(
+          new Element('div', {'class': 'body'}),
+          new Element('div', {'class': 'footer'})
+        )
+      ),
+      UI.button('Send', 'square', {'id': 'sendMessage'})
+    )
+  ]));
+  
+  // only display the settings button to people who can actually use it
+  $('settingsButton').setStyle('display', settings.owners.contains(window.openid) ? '' : 'none');
+  
+  // set up the mute button and tink sound
+  if (window.Audio) {
+    document.body.adopt(new Element('audio', { id: 'tink', src: "../../sounds/zither.mp3", autobuffer: true }));
+    var updateMuter = function() { $('muteText').set('text', $('tink').muted ? 'Unmute' : 'Mute'); }
+    $('muteButton').addEvent('click', function() { $('tink').muted = !$('tink').muted; updateMuter(); });
+    updateMuter();
+    $('tink').volume = 0.8;
   }
   
-  // the short scrolly for the messages
-  body.adopt(scrolly = UI.scrolly(true));
-  scrolly.adopt(wrap = new Element('div', {'class': 'wrap'}));
-  wrap.adopt(messages = new Element('div', {'id': 'messages'}));
-  wrap.adopt(sidebar = UI.sidebar());
-  sidebar.adopt(UI.sidebarBoxy({'id': 'userlist'}));
-  
-  // the message composer area
-  body.adopt(inputBox = new Element('form', {'class': 'inputBox'}));
-  inputBox.addEvent('submit', function() {
-    window.sendMessage();
-    return false;
+  // set up the smilies menu
+  menuify('smiliesSelector');
+  // set up the event handler for sending files
+  $('sendFileButton').addEvent('click', function() {
+    uploadWindow(urlroot + '/rooms/' + room + '/upload', {formats: 'Any format', maxSize: 5000000}, function(iframe) {
+      // when it's done do anything? nah.
+      if (iframe.contentWindow.name != 'success') return false;
+    });
   });
-  inputBox.adopt(new Element('input', {'id': 'message', 'type': 'text', 'maxlength': '2500', 'autocomplete': 'off'}));
-  inputBox.adopt(smiliesBox = new Element('div', {'id': 'smilies'}));
-  smiliesBox.adopt(selector = new Element('div', {'id': 'smiliesSelector', 'class': 'menu'}));
-  menuify(selector);
-  selector.adopt(new Element('div', {'class': 'body'}));
-  selector.adopt(new Element('div', {'class': 'footer'}));
-  inputBox.adopt(UI.button('Send', 'square', {'id': 'sendMessage'}));
+  
+  // this aint ready for the public to use, server side stuff is missing, so lets hide it!
+  $('sendfileboxy').setStyle('display', 'none');
   
   UI.finish();
   
@@ -350,8 +377,6 @@ window.addEvent('domready', function() {
     }
   });
   
-  // add the audio element for highlight alert sound
-  document.body.adopt(new Element('audio', { id: 'tink', src: "../../sounds/zither.mp3", autobuffer: true }));
 });
 
 
@@ -382,7 +407,7 @@ window.addEvent('load', function() {
 
 focused = function() {
 /*   window.focused = true; */
-  document.title = window.oldTitle;
+  if (document.title != window.oldTitle) document.title = window.oldTitle;
   window.unreadNum = 0;
   if (window.fluid) window.fluid.dockBadge = null;
   $('message').focus();

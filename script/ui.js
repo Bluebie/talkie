@@ -1,12 +1,13 @@
 // A simple collection of element builder functions for various bits of UI inside of talkie, for dynamically building windows.
 var UI = {
   // makes a container (looks like a window), be sure to .getFirst() the resulting element to get the body to stick stuff in
-  container: function(type, opts) {
+  container: function(type, opts, contains) {
     type = type || 'regular';
     var cont = new Element('div', Hash.combine({'class': type + 'Container container'}, opts || {}));
     var body = new Element('div', {'class': type + 'Body body'});
     var foot = new Element('div', {'class': 'footer'});
     cont.adopt(body); cont.adopt(foot);
+    if (contains) body.adopt.run(contains, body);
     recenter.delay(50);
     return cont;
   },
@@ -21,7 +22,7 @@ var UI = {
     var btn = new Element('a', options || {});
     btn.addClass('button');
     btn.addClass(type || 'square');
-    if (text) btn.set('text', text);
+    if (text) ($type(text) == 'string' ? btn.set('text', text) : btn.adopt(text));
     (new Element('em')).inject(btn, 'top');
     return btn;
   },
@@ -47,10 +48,12 @@ var UI = {
   sidebar: function() { return (new Element('div', {'class': 'sidebar'})); },
   
   // be sure to .getElement('.body') the resulting element to get the body to stick things in.
-  sidebarBoxy: function(opts) {
+  sidebarBoxy: function(opts, contains) {
     var boxy = new Element('div', Hash.combine({'class': 'boxy'}, opts || {}));
     boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-top.png", 'class': 'ender top'}));
-    boxy.adopt(new Element('div', {'class': 'body'}));
+    var body = new Element('div', {'class': 'body'});
+    if (contains) body.adopt.run(contains, body);
+    boxy.adopt(body);
     boxy.adopt(new Element('img', {'src': window.urlroot + "/style/sidebar-rect-bottom.png", 'class': 'ender bottom'}));
     return boxy;
   },
@@ -73,6 +76,7 @@ var UI = {
 
 // creates a model upload window
 function uploadWindow(kind, params, complete) {
+  if (kind == 'user' || kind == 'room') var kind = window.urlroot + '/alter-avatar/' + kind + '/upload';
   var container = UI.container('halfHeight');
   $(document.body).adopt(container);
   var body = container.getFirst();
@@ -92,7 +96,7 @@ function uploadWindow(kind, params, complete) {
   $(doc.body.previousSibling).adopt($('styles').clone(true));
   $(doc.body).adopt(
     new Element('p', {text: "To upload a file, choose it using the file selector here and press Send File. You only need to press that button once, and after the upload is completed, this window will close itself. You can upload any of the following formats: " + params.formats + " and no larger than " + (params.maxSize / 1000000).toInt() + " megabytes."}),
-    (new Element('form', {id: 'formy', method: 'post', enctype: 'multipart/form-data', action: '/alter-avatar/' + kind + '/upload'})).adopt(
+    (new Element('form', {id: 'formy', method: 'post', enctype: 'multipart/form-data', action: kind})).adopt(
       els = (new Element('div')).adopt(
         new Element('input', {'type': 'file', name: 'upload', maxlength: params.maxSize}),
         UI.button('Send File', 'square', {onclick: 'this.parentNode.parentNode.submit();'})
@@ -108,7 +112,7 @@ function uploadWindow(kind, params, complete) {
   
   (function() {
     iframe.addEvent('load', function() {
-      if (complete) complete(doc);
+      if (complete && complete(iframe.contentWindow.document) === false) return;
       container.destroy();
     });
   }).delay(100);

@@ -4,12 +4,12 @@ var Game = {
   spriteWidth: 44, //px
   spriteHeight: 22, //px
   displayAreaWidth: 15, // shouldn't change unless window size changes
-  displayAreaHeight: 45, // shouldn't change unless window size changes
-  gameAreaWidth: 13, // tiles - note that horizontal doesn't include the half up/down row in count
-  gameAreaHeight: 37, // tiles
+  displayAreaHeight: 36, // shouldn't change unless window size changes
+  gameAreaWidth: 11, // tiles - note that horizontal doesn't include the half up/down row in count
+  gameAreaHeight: 22, // tiles
   spriteGrid: new Array(),
-  players: [],
-  currentPlayer: null,
+  players: [window.openid],
+  currentPlayer: window.openid,
   
   getPatch: function(x, y) {
     //if (x.grass) { x = x.x; y = x.y; }
@@ -138,7 +138,7 @@ window.addEvent('domready', function() {
   window.oldTitle = document.title = settings.title + ' — ' + document.title;
   
   //// Build the page
-  document.body.adopt(container = UI.container());
+  document.body.adopt(container = UI.container('game'));
   body = container.getFirst();
   // the bar up top
   body.adopt(bar = UI.bar('top'));
