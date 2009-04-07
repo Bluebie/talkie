@@ -192,6 +192,8 @@ window.addEvent('domready', function() {
     $('muteButton').addEvent('click', function() { $('tink').muted = !$('tink').muted; updateMuter(); });
     updateMuter();
     $('tink').volume = 0.8;
+  } else {
+    $('muteButton').destroy();
   }
   
   // set up the smilies menu
