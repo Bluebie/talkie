@@ -446,7 +446,7 @@ module UserInterface::Controllers
         file.write(input.upload[:tempfile].read)
       end
       ext = input.upload[:filename].split(/\./).last.downcase
-      ext = 'unknown' if ext.length > 4 || ['pif', 'com', 'bat', 'lnk', 'url'].include?(ext.downcase)
+      ext = 'unknown' if ext.length > 4 || ['pif', 'com', 'bat', 'lnk', 'url', 'html', 'htm', 'shtml', 'xml', 'rss', 'xhtml', 'xhtm', 'mml', 'svg', 'php', 'php3', 'php4', 'rb', 'ru', 'py', 'pl'].include?(ext.downcase)
       mime = Rack::Mime.mime_type(".#{ext}", input.upload[:type])
       id = send_message(room, 'from' => @state.identity, 'type' => 'application/x-talkie-file', 'body' => {'extension' => ext, 'filename' => input.upload[:filename] || 'file', 'type' => mime})
       File.rename("rooms/#{room}/temp-#{userhash}", "rooms/#{room}/message-#{id}-file.#{ext}")
