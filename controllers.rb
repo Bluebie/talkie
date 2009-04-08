@@ -342,7 +342,7 @@ module UserInterface::Controllers
       f = File.open("rooms/#{room}/message-counter", 'r')
       f.flock(File::LOCK_EX)
       Dir.entries("rooms/#{room}").each do |file|
-        File.delete("rooms/#{room}/#{file}") if file =~ /^message\-([0-9]+)$/
+        File.delete("rooms/#{room}/#{file}") if file =~ /^message\-([0-9]+)/
       end
       f.close
       
@@ -368,8 +368,10 @@ module UserInterface::Controllers
       @settings = JSON.parse(IO.read("rooms/#{room}/settings"))
       return error('You’ve been gagged. :/') if (@settings['gagged'] || []).include?(@state.identity)
       
-      send_message(room, 'type' => 'application/x-talkie-user-enters', 'from' => identity, 'body' => 'entered.') unless File.exist?("rooms/#{room}/active-members/#{userhash}")
+      send_message(room, 'type' => 'application/x-talkie-user-enters', 'from' => @state.identity, 'body' => 'entered.') unless File.exist?("rooms/#{room}/active-members/#{userhash}")
       FileUtils.touch("rooms/#{room}/active-members/#{userhash}")
+      
+      return fileupload(room) if input.upload
       
       src_msg = JSON.parse(input.message)
       message = {'from' => @state.identity, 'type' => src_msg['type'] || 'text/plain', 'body' => src_msg['body'] || ''}
@@ -377,7 +379,7 @@ module UserInterface::Controllers
       id = send_message(room, message)
       
       # clear out old junk
-      # TODO: Archive this stuff in to html stuff in rooms which support that
+      # TODO: Archive this stuff in to html stuff in rooms which enable logs
       backlog_size = 500
       until_id = id - backlog_size
       while File.exist?("rooms/#{room}/message-#{until_id}")
@@ -397,11 +399,11 @@ module UserInterface::Controllers
           'global' => "/rooms/#{room}/state"
         }[input.state_type]
         
-        alter_json(state_file) do |state|
-          old_state = state.dup
+        alter_json(state_file) do |statey|
+          old_state = statey.dup
           case input.state_operation
           when 'shallow-merge'
-            new_state.each { |k,v| state[k] = v }
+            new_state.each { |k,v| statey[k] = v }
           when 'deep-merge'
             merger = lambda do |subject, overlay|
               overlay.each do |k,v|
@@ -413,11 +415,11 @@ module UserInterface::Controllers
               end
             end
             
-            merger.call(state, new_state)
+            merger.call(statey, new_state)
           when 'replace'
-            state = new_state
+            statey = new_state
           end
-          state = old_state if state.to_s.length > 10_000
+          statey = old_state if statey.to_s.length > 10_000
         end
       end
       
@@ -436,11 +438,41 @@ module UserInterface::Controllers
     def error(text)
       JSON.generate('success' => false, 'error' => text.to_s)
     end
+    
+    def fileupload(room)
+      require 'rack/mime'
+      return "Couldn't send file, as it is too large" if input.upload[:tempfile].size > 5_000_000
+      File.open("rooms/#{room}/temp-#{userhash}", 'w') do |file|
+        file.write(input.upload[:tempfile].read)
+      end
+      ext = input.upload[:filename].split(/\./).last.downcase
+      ext = 'unknown' if ext.length > 4 || ['pif', 'com', 'bat', 'lnk', 'url'].include?(ext.downcase)
+      mime = Rack::Mime.mime_type(".#{ext}", input.upload[:type])
+      id = send_message(room, 'from' => @state.identity, 'type' => 'application/x-talkie-file', 'body' => {'extension' => ext, 'filename' => input.upload[:filename] || 'file', 'type' => mime})
+      File.rename("rooms/#{room}/temp-#{userhash}", "rooms/#{room}/message-#{id}-file.#{ext}")
+      
+      # clear out old files past 3
+      files = []
+      Dir.foreach("rooms/#{room}") do |filename|
+        next unless filename =~ /^message\-([0-9]+)\-file/
+        files << [$1.to_i, filename]
+      end
+      files.sort! { |a, b| a.first <=> b.first }
+      File.delete("rooms/#{room}/#{files.shift.last}") while files.length > 3
+      
+      return '<!doctype html><html><head><script>window.name = "y";</script></head></html>'
+    end
   end
   
   class ShortURL < R('/r:([a-z0-9-]+)')
     def get(room)
       redirect Room, room
+    end
+  end
+  
+  class CatchMissingFile < R('/rooms/([a-z0-9-]+)/message\-[0-9]+\-file(.*)')
+    def get(room, ext)
+      render :generic_error, "Uploaded file removed", "This file has been removed to conserve storage space, as at least three more files have been uploaded since this one. You can contact the original sender to upload it again if needed. Sorry about that. :)"
     end
   end
 end

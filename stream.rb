@@ -179,7 +179,7 @@ class StreamController
               message.merge! 'id' => room[:position], 'room' => room[:name]
               
               # TODO: Only do this when user profile has changed since the user last received 
-              if !room[:raw_position] || room[:raw_position] == 'null' || File.mtime("users/#{userhash(message['from'])}/profile").to_i >= message['timestamp'] || message['type'] == 'application/x-talkie-user-enters'
+              if message['from'] && (!room[:raw_position] || room[:raw_position] == 'null' || File.mtime("users/#{userhash(message['from'])}/profile").to_i >= message['timestamp'] || message['type'] == 'application/x-talkie-user-enters')
                 send_user(nil, nil, message['from']) if message['from']
               end
               

@@ -13,7 +13,15 @@ var Messages = {
       Users.generateHTML(message.from).adopt(new Element('span', {'class': 'invisiText', text: ': '}))
     );
     
-    var messageBody = new Element('span', {'class': 'body', text: message.body.toString()});
+    var messageBody = new Element('span', {'class': 'body'});
+    if ($type(message.body) == 'string') {
+      messageBody.set('text', message.body);
+    } else {
+      if (message.type == 'application/x-talkie-file')
+        messageBody.appendText("uploaded a file: ").adopt(
+          new Element('a', {href: 'message-'+message.id+'-file.'+message.body.extension, target: '_blank', text: message.body.filename, type: message.body.type})
+        ).appendText('.');
+    }
     messageElement.adopt(messageBody);
     // do smilies
     AutoLink.everything(messageBody);
@@ -98,6 +106,9 @@ var MessageHandlers = {
   },
   'text/x-talkie-action': function(message) {
     Messages.append('action' + highlightClassMaybe(message), message);
+  },
+  'application/x-talkie-file': function(message) {
+    Messages.append('action file-shared', message);
   },
   'application/x-talkie-user-enters': function(message) {
     if (stream.initialLoadDone) {
@@ -200,14 +211,11 @@ window.addEvent('domready', function() {
   menuify('smiliesSelector');
   // set up the event handler for sending files
   $('sendFileButton').addEvent('click', function() {
-    uploadWindow(urlroot + '/rooms/' + room + '/upload', {formats: 'Any format', maxSize: 5000000}, function(iframe) {
-      // when it's done do anything? nah.
-      if (iframe.contentWindow.name != 'success') return false;
-    });
+    uploadWindow(urlroot + '/rooms/' + room + '/send', {formats: 'Any format', maxSize: 5000000});
   });
   
   // this aint ready for the public to use, server side stuff is missing, so lets hide it!
-  $('sendfileboxy').setStyle('display', 'none');
+  //$('sendfileboxy').setStyle('display', 'none');
   
   UI.finish();
   

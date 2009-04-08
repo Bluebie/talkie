@@ -10,6 +10,8 @@ var Game = {
   spriteGrid: new Array(),
   players: [window.openid],
   currentPlayer: window.openid,
+  playerSheeps: {},
+  maxPlayers: 3,
   
   getPatch: function(x, y) {
     //if (x.grass) { x = x.x; y = x.y; }
@@ -86,7 +88,7 @@ var Game = {
   
   onMouseClick: function(event) {
     if (Game.currentPlayer != window.openid) return;
-    if (!Game.highlighted) return;
+    if (!Game.validateMove(Game.mouse)) return;
     Game.highlighted = null;
     var rail = (Game.mouse.xf - Game.mouse.x > 0.5 ? 'right' : 'left');
     Game.playMove(Game.mouse.x, Game.mouse.y, rail);
@@ -102,9 +104,14 @@ var Game = {
     railing.get('tween').cancel();
     railing.fade('show');
     var patches = Game.isBoxFinished(Game.getPatch(Game.mouse.x, Game.mouse.y));
-    if (patches.length > 0) patches.each(function (p) { p.finish(Game.currentPlayer); });
+    if (patches.length > 0) patches.each(function (p) {
+      if (p.finished) return;
+      Game.playerSheeps[Game.currentPlayer] = (Game.playerSheeps[Game.currentPlayer] || 0) + 1;
+      p.finish(Game.currentPlayer);
+    });
   }
 };
+
 
 var Patch = new Class({
   initialize: function(x, y) {
@@ -117,6 +124,7 @@ var Patch = new Class({
   finish: function(openid) {
     this.finished = true;
     this.boxOwner = openid || null;
+    this.sheep.src = sprites['sheep-'+(Game.players.indexOf(openid) + 1)].src
     this.sheep.fade('in');
   },
   
@@ -158,7 +166,7 @@ window.addEvent('domready', function() {
   
   // preload the graphics
   window.sprites = {};
-  ['sheep', 'pole', 'grass-1', 'grass-2', 'left-railing', 'right-railing'].each(function(name) {
+  ['sheep-1', 'sheep-2', 'sheep-3', 'pole', 'grass-1', 'grass-2', 'left-railing', 'right-railing'].each(function(name) {
     body.adopt(sprites[name] = new Element('img', {'src': ui_root + name + '.png', 'class': name}));
   });
 });
@@ -209,7 +217,7 @@ window.addEvent('load', function() {
         var pole = add_sprite(sprites['pole'], top, left, zindex + 1000);
         var lrail = add_sprite(sprites['left-railing'], top, left, zindex + 1001).fade('hide');
         var rrail = add_sprite(sprites['right-railing'], top, left, zindex + 1002).fade('hide');
-        var sheep = add_sprite(sprites['sheep'], top, left, zindex + 1003).fade('hide');
+        var sheep = add_sprite(sprites['sheep-1'], top, left, zindex + 1003).fade('hide');
       }
       
       // store it
