@@ -5,7 +5,7 @@ html { background-color: #8FB359; font-family: Helvetica, Ariel, sans-serif; fon
 
 /* Container Windows */
 body { min-height: 525px; }
-body .container {
+.container {
   position: absolute;
   background: url(regular-container.png) 0 0;
   width: 640px;
@@ -13,7 +13,7 @@ body .container {
   z-index: 100;
 }
 
-body .container .footer {
+.container .footer {
   background: url(regular-container.png) left bottom;
   background-repeat: no-repeat;
   position: absolute;
@@ -22,11 +22,11 @@ body .container .footer {
   margin-left: -13px;
 }
 
-body .regularContainer { top: 50%; left: 50%; margin-top: -262px; margin-left: -333px; }
-body .regularContainer .regularBody { height: 498px; }
+.regularContainer { top: 50%; left: 50%; margin-top: -262px; margin-left: -333px; }
+.regularContainer .regularBody { height: 498px; }
 
-body .halfHeightContainer { top: 50%; left: 50%; margin-top: -131px; margin-left: -333px; }
-body .halfHeightContainer .halfHeightBody { height: 249px; }
+.halfHeightContainer { top: 50%; left: 50%; margin-top: -131px; margin-left: -333px; }
+.halfHeightContainer .halfHeightBody { height: 249px; }
 
 .scroll {
   height: 470px;

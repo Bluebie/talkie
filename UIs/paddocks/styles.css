@@ -2,6 +2,33 @@
 	top: 50%;
 	left: 50%;
 	margin-top: -212px;
-	margin-left: -333px;
+	margin-left: -433px;
 }
 .gameContainer .body { height: 400px; }
+.gameContainer * {
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+}
+
+
+div.sideContainer {
+	top: 50%;
+	left: 50%;
+	width: 175px;
+	margin-top: -212px;
+	margin-left: 253px;
+	background-image: url(side-container.png);
+}
+div.sideContainer .footer {
+	background-image: url(side-container.png);
+	width: 201px;
+}
+
+#gameStatus {
+	height: 45px;
+	color: #DFDFA3;
+}
+
+a#joinGame { margin-top: 3px; margin-bottom: 3px; }
+a#joinGame b { font-weight: normal; width: 138px; text-align: center; display: inline-block; }

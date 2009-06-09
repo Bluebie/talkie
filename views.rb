@@ -14,7 +14,6 @@ module UserInterface::Views
       script :src => "#{@root}/script/compiled?last-modified=#{File.mtime('script').to_i}"
       script do
         text "Cufon.replace('.text');"
-        text "soundManager.url = '#{@root}/script/soundmanager/swf/';"
         text "window.urlroot = #{JSON.generate(@root)};"
         text "window.room = #{JSON.generate(@room)};" if @room
         text "window.settings = #{JSON.generate(@settings)};" if @settings
@@ -141,8 +140,10 @@ module UserInterface::Views
       link :href => "#{ui_root}/styles.css?#{File.mtime("UIs/#{ui_name}/styles.css").to_i}", :rel => 'stylesheet'
       script "window.ui_root = #{JSON.generate(ui_root + '/')};"
       script :src => "#{ui_root}/script.js?#{File.mtime("UIs/#{ui_name}/script.js").to_i}"
-      link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png'
-      link :rel => 'short_url', :href => URL(ShortURL, @room).to_s
+      link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-16.png')}", :type => 'image/png', :sizes => '16x16'
+      link :rel => 'shortcut icon', :href => "#{@root}/#{room_or_default(@room, 'avatar-80.png')}", :type => 'image/png', :sizes => '80x80'
+      link :rel => 'shorturl', :href => URL(ShortURL, @room).to_s
+      link :rel => 'up', :href => URL(Home).to_s
     end
     
     ''
@@ -161,7 +162,10 @@ module UserInterface::Views
   end
   
   def create_room
-    @headstuff = proc { script 'window.addEvent("load", function() { $("room_id").focus(); });' }
+    @headstuff = proc do
+      script 'window.addEvent("load", function() { $("room_id").focus(); });'
+      link :rel => 'up', :href => URL(Home).to_s
+    end
     
     regularContainer do
       div.bar.top do
@@ -194,6 +198,7 @@ module UserInterface::Views
     @headstuff = proc do
       load_scripts 'settings.js'
       script "window.room = #{JSON.generate(@room)};"
+      link :rel => 'up', :href => URL(Room, @room).to_s
     end
     
     regularContainer('settingsBody') do

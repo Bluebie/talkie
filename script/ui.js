@@ -80,7 +80,7 @@ function uploadWindow(kind, params, complete) {
   var container = UI.container('halfHeight');
   $(document.body).adopt(container);
   var body = container.getFirst();
-  body.adopt(UI.bar('top').adopt(UI.centered().adopt(UI.title('Avatar Upload')), UI.lefted().adopt(UI.button('Close', 'left', {events: { click: function() { container.destroy(); }}}))));
+  body.adopt(UI.bar('top').adopt(UI.centered().adopt(UI.title('Upload a file to talkie')), UI.lefted().adopt(UI.button('Close', 'left', {events: { click: function() { container.destroy(); }}}))));
   
   UI.finish();
   
@@ -95,7 +95,7 @@ function uploadWindow(kind, params, complete) {
   var els
   $(doc.body.previousSibling).adopt($('styles').clone(true));
   $(doc.body).adopt(
-    new Element('p', {text: "To upload a file, choose it using the file selector here and press Send File. You only need to press that button once, and after the upload is completed, this window will close itself. You can upload any of the following formats: " + params.formats + " and no larger than " + (params.maxSize / 1000000).toInt() + " megabytes."}),
+    new Element('p', {text: params.message || ("To upload a file, choose it using the file selector here and press Send File. You only need to press that button once, and after the upload is completed, this window will close itself. You can upload any of the following formats: " + params.formats + " and no larger than " + (params.maxSize / 1000000).toInt() + " megabytes.")}),
     (new Element('form', {id: 'formy', method: 'post', enctype: 'multipart/form-data', action: kind})).adopt(
       els = (new Element('div')).adopt(
         new Element('input', {'type': 'file', name: 'upload', maxlength: params.maxSize}),
@@ -106,6 +106,7 @@ function uploadWindow(kind, params, complete) {
   
   Hash.erase(params, 'maxSize');
   Hash.erase(params, 'formats');
+  Hash.erase(params, 'message');
   Hash.each(params, function(val, key) {
     els.adopt(new Element('input', {'type': 'hidden', name: key, value: val}));
   });
@@ -136,4 +137,13 @@ function recenter() {
 
 if (Browser.Platform != 'ipod') {
   window.addEvents({load: recenter, resize: recenter});
+}
+
+if (!window.Audio) {
+  window.addEvent('domready', function() {
+    $(document.body).getPrevious().adopt(
+      new Element('script', {src: urlroot + '/script/soundmanager/script/soundmanager2-nodebug-jsmin.js'}),
+      new Element('script', {text: "soundManager.url = urlroot + '/script/soundmanager/swf/';"})
+    );
+  });
 }

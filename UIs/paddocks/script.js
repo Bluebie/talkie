@@ -87,6 +87,7 @@ var Game = {
   },
   
   onMouseClick: function(event) {
+    if (!Game.highlighted) return;
     if (Game.currentPlayer != window.openid) return;
     if (!Game.validateMove(Game.mouse)) return;
     Game.highlighted = null;
@@ -146,7 +147,7 @@ window.addEvent('domready', function() {
   window.oldTitle = document.title = settings.title + ' — ' + document.title;
   
   //// Build the page
-  document.body.adopt(container = UI.container('game'));
+  $(document.body).adopt(container = UI.container('game'));
   body = container.getFirst();
   // the bar up top
   body.adopt(bar = UI.bar('top'));
@@ -161,6 +162,17 @@ window.addEvent('domready', function() {
   
   body.adopt(game_area = new Element('div', {'id': 'gamearea'}));
   game_area.addEvents({click: Game.onMouseClick, mousemove: Game.onMouseMove});
+  
+  $(document.body).adopt(
+    UI.container('side', {}, [
+      new Element('div', {id: 'gameStatus'}).adopt(
+        new Element('div', {text: 'Current Player:'}),
+        new Element('div', {text: 'None', id: 'currentPlayer'})
+      ),
+      new Element('div', {id: 'players'}),
+      UI.button(null, null, {id: 'joinGame'}).adopt( new Element('b', {text: 'Join Game'}) )
+    ])
+  );
   
   UI.finish();
   
@@ -191,7 +203,7 @@ window.addEvent('load', function() {
   });
   
   var add_sprite = function(sprite, top, left, zindex) {
-    var thing = sprite.clone();
+    var thing = sprite.clone(true);
     thing.setStyle('position', 'absolute');
     thing.setStyle('left', left - ((sprite.getStyle('width').toInt() - sprite_width) / 2));
     thing.setStyle('top', top - (sprite.getStyle('height').toInt() - sprite_height));

@@ -17,6 +17,9 @@ Oh, and one more thing! Check out the helpers.rb file. My openid's are hacked in
 in the user_owns_room? method, change them out for your own or i'll be able to login
 and have ownership rights over rooms everywhere in your system! Mwa ha ha ha ha ha... :)
 
+And another thing! In config.ru, there's some code which is specific to the DreamHost
+hosting talkie.me currently is running on, ditch it or change it as needed!
+
 Hope you love talkie!
 
 —

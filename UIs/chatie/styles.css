@@ -18,6 +18,7 @@ span.invisiText { opacity: 0; }
 .message .body { /*margin-left: 55px; text-indent: 100px;*/ text-indent: 1em; width: 390px; display: block; word-wrap: break-word; }
 .message .body .smiley { vertical-align: middle; }
 #messages .highlight { background-color: #FFD933; padding: 1ex 0 1ex 0; }
+#messages .system { font-weight: bold; font-style: italic; }
 
 #messages .normal .body { margin-left: 70px; }
 #messages .action { font-style: italic; }

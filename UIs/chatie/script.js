@@ -211,7 +211,8 @@ window.addEvent('domready', function() {
   menuify('smiliesSelector');
   // set up the event handler for sending files
   $('sendFileButton').addEvent('click', function() {
-    uploadWindow(urlroot + '/rooms/' + room + '/send', {formats: 'Any format', maxSize: 5000000});
+    var msg = "You can use the Send Creation button to upload one of your creative works to this room. Select a file using the file chooser below this text, and then use the button below that to send it. Depending on the size and speed of your connection, the file will upload in some time. Once it’s done, this popup will close itself. Please though, only upload content you yourself created or helped to create, or you were featured within. Nothing pornographic or offensive either please. If you must, make sure you warn people in the room before you send such things. No more than 5mb’s either… for now.";
+    uploadWindow(urlroot + '/rooms/' + room + '/send', {formats: 'Any format', maxSize: 5000000, message: msg});
   });
   
   // this aint ready for the public to use, server side stuff is missing, so lets hide it!
