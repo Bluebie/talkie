@@ -1,8 +1,9 @@
 #Dir.chdir(File.dirname(__FILE__))
-if ENV['RAILS_ENV'] == 'production'  # don't bother on dev
-  ENV['GEM_PATH'] = '/home/bluebiepony/.gems' #+ ':/usr/lib/ruby/gems/1.8'  # Need this or Passenger fails to start
+#if ENV['RAILS_ENV'] == 'production'  # don't bother on dev
+  #ENV['GEM_PATH'] = '/home/bluebiepony/.gems' + ':/usr/lib/ruby/gems/1.8'  # Need this or Passenger fails to start
   #require '/home/bluebiepony/.gems/gems/RedCloth-4.1.9/lib/redcloth.rb'  # Need this for EACH LOCAL gem you want to use, otherwise it uses the ones in /usr/lib
-end
+#end
+require 'rubygems'
 require 'ui'
 
 file_handler = Rack::File.new('.')
@@ -28,6 +29,7 @@ apps << lambda do |env|
     if !env['HTTP_IF_MODIFIED_SINCE'] || mtime > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
       r = file_handler.call(env)
       r[1]['Expires'] = (Time.now + 60*60*24).httpdate if env['PATH_INFO'] =~ /(script|style|default|users|rooms|sounds|\.png|\.jpeg)/
+      r[1]['Cache-Control'] = 
       r
     else
       [304, {'Last-Modified' => mtime.httpdate}, ['']]
