@@ -4,7 +4,7 @@
   #require '/home/bluebiepony/.gems/gems/RedCloth-4.1.9/lib/redcloth.rb'  # Need this for EACH LOCAL gem you want to use, otherwise it uses the ones in /usr/lib
 #end
 require 'rubygems'
-require 'ui'
+require './ui'
 
 file_handler = Rack::File.new('.')
 
@@ -29,7 +29,7 @@ apps << lambda do |env|
     if !env['HTTP_IF_MODIFIED_SINCE'] || mtime > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
       r = file_handler.call(env)
       r[1]['Expires'] = (Time.now + 60*60*24).httpdate if env['PATH_INFO'] =~ /(script|style|default|users|rooms|sounds|\.png|\.jpeg)/
-      r[1]['Cache-Control'] = 
+      r[1]['Cache-Control'] =
       r
     else
       [304, {'Last-Modified' => mtime.httpdate}, ['']]
@@ -41,16 +41,16 @@ end
 
 apps << Rack::Builder.new do
   use Rack::ShowExceptions
-  
+
   map "/stream" do
-    require 'stream.rb'
+    require './stream.rb'
     run Stream
   end
-  
+
   map "/check-pulse" do
     run(lambda { |env| [200, {'Content-Type'=>'text/plain', 'Content-Length'=>'6'}, ['ponies']] })
   end
-  
+
   map "/script/compiled" do
     use Rack::ContentLength
     use Rack::Deflater
@@ -64,8 +64,8 @@ apps << Rack::Builder.new do
         'network.js',
         'core.js'
       ]
-      
-      
+
+
       time = files.map { |f| File.mtime("script/#{f}") }.max
       if !env['HTTP_IF_MODIFIED_SINCE'] || time > Time.rfc2822(env['HTTP_IF_MODIFIED_SINCE'])
         data = files.map { |f| File.read("script/#{f}") }.join("\n")
@@ -78,7 +78,7 @@ apps << Rack::Builder.new do
       end
     })
   end
-  
+
   map "/" do
     run(lambda { |env|
       response = UserInterface.call(env)

@@ -40,7 +40,7 @@ module UserInterface
   end
 end
 
-require 'helpers'
+require './helpers'
 
 class CurlError < Exception; end
 CurlErrorMeanings = {
@@ -66,18 +66,18 @@ BotNotifier = Thread.new do
     next unless settings['bot']['enabled']
     #next if errors_left == 0
     next if last_msg >= current_msg
-    
+
     begin
       url = URI.parse(settings['bot']['url'])
       raise :stuff unless url.scheme.downcase == 'http'
     rescue
       raise "Bot URL '#{settings['bot']['url']}' is not valid"
     end
-    
+
     response  = Tempfile.new('bot-response-', "rooms/#{room}")
     headers   = Tempfile.new('bot-headers-', "rooms/#{room}")
     error_log = Tempfile.new('bot-curl-errors-', "rooms/#{room}")
-    
+
     messages = Array.new
     ((last_msg + 1)..current_msg).each do |id|
       if File.exist?("rooms/#{room}/message-#{id}")
@@ -89,7 +89,7 @@ BotNotifier = Thread.new do
         end
       end
     end
-    
+
     raise CurlError.new("Curl Request Failed, error: #{CurlErrorMeanings[$?.to_s] || $?}") unless system('curl',
       '--user-agent', "#{AppName} Bot Runner",
       '--connect-timeout', '3',
@@ -103,23 +103,23 @@ BotNotifier = Thread.new do
       '--output', response.path,
       url.to_s
     )
-    
-    
+
+
     returned_messages = JSON.parse(response.read) if response.size
     header_list = headers.read.split(/\r\n/).map { |i| i.split(/\:/, 2).map { |i| i.strip } }.map { |i| (i.length == 1) ? nil : i }.compact!
     header_list.flatten!
     header_list = Hash[*header_list]
     response.close!; error_log.close!; headers.close!
-    
+
     bot_dir = userdir(url.to_s)
     FileUtils.touch("#{bot_dir}/bot")
-    
+
     alter_json("#{bot_dir}/profile") do |o|
       if o['name'] != header_list['X-Profile-Name']
         o['name'] = header_list['X-Profile-Name']
       end
     end if header_list.has_key?('X-Profile-Name')
-    
+
     returned_messages = [returned_messages] if returned_messages.is_a?(Hash)
     raise 'Returned object is not an array' unless returned_messages.is_a?(Array)
     raise 'Returned more than 50 messages, aborting' if returned_messages.length > 50
@@ -135,7 +135,7 @@ BotNotifier = Thread.new do
         )
       end
     end
-    
+
     alter_text("rooms/#{room}/bot-last-message") { |o| current_msg }
     alter_text("rooms/#{room}/bot-error-allowance") { |o| o.to_i + 1 }
   rescue Object => e
@@ -151,13 +151,12 @@ BotNotifier = Thread.new do
       end
       text
     end
-    
+
     send_message(room, :type => 'text/x-debug', :from => Thread.current[:from], :body => message)
   end until false
 end
 
 BotNotifier.abort_on_exception = true
 
-require 'controllers'
-require 'views'
-
+require './controllers'
+require './views'
